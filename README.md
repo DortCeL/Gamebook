@@ -1,84 +1,87 @@
-# Gamebook
+# Welcome to React Router!
 
-## Description
-This project is a full-stack web application built with React and Tailwind CSS on the frontend and Express.js on the backend. The project is split into two main folders:
-- `client`: The frontend application built with React and styled using Tailwind CSS.
-- `server`: The backend REST API built with Express.js.
+A modern, production-ready template for building full-stack React applications using React Router.
 
-## Table of Contents
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Installation](#installation)
-- [Folder Structure](#folder-structure)
-- [Usage](#usage)
-- [API Documentation](#api-documentation)
-- [Contributing](#contributing)
-- [License](#license)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
 
 ## Features
-- Full-stack app with client-server architecture.
-- Frontend built with React and styled using Tailwind CSS for responsive UI.
-- RESTful API powered by Express.js.
-- Modular folder structure for scalable development.
 
-## Tech Stack
-- **Frontend**: React, Tailwind CSS
-- **Backend**: Node.js, Express
-- **Database**: (Add if you're using one, e.g., MongoDB, PostgreSQL, etc.)
+- 🚀 Server-side rendering
+- ⚡️ Hot Module Replacement (HMR)
+- 📦 Asset bundling and optimization
+- 🔄 Data loading and mutations
+- 🔒 TypeScript by default
+- 🎉 TailwindCSS for styling
+- 📖 [React Router docs](https://reactrouter.com/)
 
-## Installation
+## Getting Started
 
-### Prerequisites
-Make sure you have the following installed:
-- Node.js (v14+)
-- npm or yarn
+### Installation
 
-### Steps
+Install the dependencies:
 
-1. **Clone the repository:**
-    ```bash
-    git clone https://github.com/your-username/your-project-name.git
-    cd your-project-name
-    ```
+```bash
+npm install
+```
 
-2. **Install dependencies for both client and server:**
+### Development
 
-    ```bash
-    # Install server dependencies
-    cd server
-    npm install
-    
-    # Install client dependencies
-    cd ../client
-    npm install
-    ```
+Start the development server with HMR:
 
-3. **Set up environment variables:**
+```bash
+npm run dev
+```
 
-    - In the `server` folder, create a `.env` file and add necessary variables (like DB_URI, PORT, etc.). Example:
-    ```bash
-    PORT=5000
-    DB_URI=your-database-uri
-    ```
+Your application will be available at `http://localhost:5173`.
 
-    - In the `client` folder, if you have any API keys or environment variables, create a `.env` file in the same way.
+## Building for Production
 
-4. **Run the server and client:**
+Create a production build:
 
-    - **Server** (Express backend):
-    ```bash
-    cd server
-    npm start
-    ```
+```bash
+npm run build
+```
 
-    - **Client** (React frontend):
-    ```bash
-    cd ../client
-    npm start
-    ```
+## Deployment
 
-5. **Access the app:**
-    - Client: `http://localhost:3000`
-    - Server: `http://localhost:5000/api`
+### Docker Deployment
 
-## Folder Structure
+To build and run using Docker:
+
+```bash
+docker build -t my-app .
+
+# Run the container
+docker run -p 3000:3000 my-app
+```
+
+The containerized application can be deployed to any platform that supports Docker, including:
+
+- AWS ECS
+- Google Cloud Run
+- Azure Container Apps
+- Digital Ocean App Platform
+- Fly.io
+- Railway
+
+### DIY Deployment
+
+If you're familiar with deploying Node applications, the built-in app server is production-ready.
+
+Make sure to deploy the output of `npm run build`
+
+```
+├── package.json
+├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
+├── build/
+│   ├── client/    # Static assets
+│   └── server/    # Server-side code
+```
+
+## Styling
+
+This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
+
+---
+
+Built with ❤️ using React Router.

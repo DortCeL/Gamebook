@@ -1,0 +1,39 @@
+# Issue 1: no Cascade Delete in Mongoose 
+=> Mongoose er default cascade deletion option nai. so we have 3 options: 1. Document middleware (inside model - only works when we call a certain function like deleteOne) 2. Query Middleware (can be made work with findByIdAndDelete if we want) 3. Service layer function (safest but more messy service layer code); I chose to work with document layer middleware. let's see
+
+
+* MongoDB does not have cascade delete because it is not a relational db so there is no foreign key :)
+
+*** In express, always put static paths above, dynamic paths below.
+        router.get("/myposts", authenticate, PostController.getMyPosts);
+        router.get("/", PostController.getAll);
+        router.get("/:id", PostController.getById);
+
+        this is OK.
+
+        but
+        router.get("/", PostController.getAll);
+        router.get("/:id", PostController.getById);
+        router.get("/myposts", authenticate, PostController.getMyPosts);
+
+        this is not. because now express will treat "myposts" as the id and execute /:id route. this is a critical thing with EXPRESS
+
+
+
+
+
+
+
+
+
+
+
+
+=========================================================================================================================================================================================
+
+### TODO: 
+
+=========================================================================================================================================================================================
+
+1. Reset password pipeline
+2. check how pagination works in comment service (getComments, getReplies)
