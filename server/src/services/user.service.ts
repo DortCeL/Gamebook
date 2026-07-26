@@ -1,6 +1,33 @@
+import { Post } from "../models/Post.js";
 import User, { IUser } from "../models/User.js";
 
+export interface UserProfileResponse {
+	user: IUser;
+	stats: {
+		totalPosts: number;
+	};
+}
+
 export class UserService {
+	// Fetch logged-in user details with stats
+	static async getProfile(userId: string): Promise<UserProfileResponse> {
+		const user = await User.findById(userId);
+
+		if (!user) {
+			throw new Error("User not found.");
+		}
+
+		// Run post count query concurrently
+		const totalPosts = await Post.countDocuments({ author: userId });
+
+		return {
+			user,
+			stats: {
+				totalPosts,
+			},
+		};
+	}
+
 	static async deleteUser(userId: string): Promise<IUser | null> {
 		// 1. Fetch the user document instance
 		const user = await User.findById(userId);

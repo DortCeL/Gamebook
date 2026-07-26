@@ -1,5 +1,5 @@
 import { Comment, IComment } from "../models/Comment.js";
-import { Post } from "../models/Post.js";
+import { IPost, Post } from "../models/Post.js";
 
 export class CommentService {
 	// Create a comment or reply
@@ -66,18 +66,30 @@ export class CommentService {
 			.limit(limit);
 	}
 
-	// Delete a comment (and its nested replies)
+	// Delete a comment (and its nested replies) if the requester is the comment author OR post author
 	static async deleteComment(
 		commentId: string,
-		authorId: string,
+		userId: string,
 	): Promise<boolean> {
-		const comment = await Comment.findOne({ _id: commentId, author: authorId });
+		// 1. Fetch the comment and populate the parent post to inspect post.author
+		const comment = await Comment.findById(commentId).populate<{ post: IPost }>(
+			"post",
+		);
 
 		if (!comment) {
 			return false;
 		}
 
-		// Delete the comment AND any replies attached to it
+		const isCommentAuthor = comment.author.toString() === userId;
+		const isPostAuthor =
+			comment.post && comment.post.author.toString() === userId;
+
+		// 2. Reject if requester is neither the comment author nor the post author
+		if (!isCommentAuthor && !isPostAuthor) {
+			return false;
+		}
+
+		// 3. Delete the comment AND any replies attached to it
 		await Comment.deleteMany({
 			$or: [{ _id: commentId }, { parentComment: commentId }],
 		});

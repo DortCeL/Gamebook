@@ -25,7 +25,8 @@
 
 
 
-
+# issue 2: Signup from backend does not return a token. only login does. had to suffer because of this. so auto login = signup + login back to back.
+THE FIX ? ===> call login in the singup component so that after signup, login automatically is called
 
 
 

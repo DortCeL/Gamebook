@@ -2,46 +2,33 @@ import { Request, Response } from "express";
 import { UserService } from "../services/user.service.js";
 
 export class UserController {
-	static async deleteAccount(req: Request, res: Response) {
+	// GET PROFILE INFO
+	static async getProfile(req: Request, res: Response) {
 		try {
-			const targetUserId = req.params.id;
-			if (!targetUserId)
-				return res.status(400).json({
-					success: false,
-					message: "Target id is missing in the url",
-				});
+			const userId = req.user?._id;
 
-			const authenticatedUserId = req.user?._id; // Populated by your auth middleware
-
-			// Prevent users from deleting other accounts
-			if (authenticatedUserId !== targetUserId) {
-				return res.status(403).json({
+			if (!userId) {
+				return res.status(401).json({
 					success: false,
-					message: "Forbidden: You can only delete your own account.",
+					message: "Unauthorized: Authentication required.",
 				});
 			}
 
-			const deletedUser = await UserService.deleteUser(targetUserId);
-
-			if (!deletedUser) {
-				return res.status(404).json({
-					success: false,
-					message: "User not found.",
-				});
-			}
+			const profileData = await UserService.getProfile(userId);
 
 			return res.status(200).json({
 				success: true,
-				message: "Account and associated posts deleted successfully.",
+				data: profileData,
 			});
 		} catch (error: any) {
 			return res.status(500).json({
 				success: false,
-				message: error.message || "An error occurred while deleting account.",
+				message: error.message,
 			});
 		}
 	}
 
+	// UPDATE PROFILE
 	static async updateProfile(req: Request, res: Response) {
 		try {
 			const { name, gamertag, bio, avatarUrl } = req.body;
@@ -96,6 +83,47 @@ export class UserController {
 			return res.status(400).json({
 				success: false,
 				message: error.message || "Failed to update profile.",
+			});
+		}
+	}
+
+	// DELETE ACCOUNT / PROFILE
+	static async deleteAccount(req: Request, res: Response) {
+		try {
+			const targetUserId = req.params.id;
+			if (!targetUserId)
+				return res.status(400).json({
+					success: false,
+					message: "Target id is missing in the url",
+				});
+
+			const authenticatedUserId = req.user?._id; // Populated by your auth middleware
+
+			// Prevent users from deleting other accounts
+			if (authenticatedUserId !== targetUserId) {
+				return res.status(403).json({
+					success: false,
+					message: "Forbidden: You can only delete your own account.",
+				});
+			}
+
+			const deletedUser = await UserService.deleteUser(targetUserId);
+
+			if (!deletedUser) {
+				return res.status(404).json({
+					success: false,
+					message: "User not found.",
+				});
+			}
+
+			return res.status(200).json({
+				success: true,
+				message: "Account and associated posts deleted successfully.",
+			});
+		} catch (error: any) {
+			return res.status(500).json({
+				success: false,
+				message: error.message || "An error occurred while deleting account.",
 			});
 		}
 	}
