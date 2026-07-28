@@ -1,15 +1,97 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+	--font-sans:
+		"Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+		"Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+	/* @apply bg-white dark:bg-gray-950; */
 
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+	/* @media (prefers-color-scheme: dark) {
+		color-scheme: dark;
+	} */
+}
+
+@layer components {
+	/* Headings */
+	h1 {
+		@apply text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-4;
+	}
+	h2 {
+		@apply text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-3;
+	}
+	h3 {
+		@apply text-2xl font-semibold tracking-tight text-slate-900 dark:text-white mb-3;
+	}
+	h4 {
+		@apply text-xl font-semibold text-slate-900 dark:text-white mb-2;
+	}
+	h5 {
+		@apply text-lg font-medium text-slate-800 dark:text-slate-100 mb-2;
+	}
+	h6 {
+		@apply text-base font-medium text-slate-700 dark:text-slate-200 mb-1;
+	}
+
+	/* Body Text */
+	p {
+		@apply text-base text-slate-600 dark:text-slate-300 leading-relaxed mb-4;
+	}
+
+	/* Form Elements */
+	label {
+		@apply block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5;
+	}
+
+	input[type="text"],
+	input[type="email"],
+	input[type="password"],
+	input[type="number"],
+	input[type="search"],
+	input[type="tel"],
+	input[type="url"],
+	textarea,
+	select {
+		@apply w-full px-3.5 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-900 
+           border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm
+           placeholder:text-slate-400 dark:placeholder:text-slate-500
+           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+           disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:cursor-not-allowed
+           transition-colors duration-150 ease-in-out;
+	}
+
+	/* Buttons */
+	button,
+	.btn {
+		@apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg
+           bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 
+           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-colors duration-150 ease-in-out cursor-pointer;
+	}
+
+	/* Alternative Button Classes (Optional helper classes) */
+	.btn-secondary {
+		@apply bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 focus:ring-slate-500;
+	}
+
+	.btn-outline {
+		@apply bg-transparent border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 focus:ring-indigo-500;
+	}
+
+	/* Extra Common Elements */
+	a {
+		@apply text-indigo-600 dark:text-indigo-400 hover:underline font-medium transition-colors;
+	}
+
+	code {
+		@apply text-xs font-mono bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700;
+	}
+
+	hr {
+		@apply border-slate-200 dark:border-slate-800 my-6;
+	}
 }
