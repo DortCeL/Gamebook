@@ -4,7 +4,7 @@ import { Post } from "./Post.js";
 export interface IUser extends Document {
 	name: string;
 	gamertag: string;
-	avatarUrl?: String;
+	avatarUrl?: string;
 	email: string;
 	password: string;
 	role: "user" | "admin";

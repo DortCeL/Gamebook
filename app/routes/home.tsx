@@ -1,3 +1,4 @@
+import Navbar from "~/components/Navbar";
 import type { Route } from "./+types/home";
 import SignupPage from "./signup";
 
@@ -9,5 +10,9 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-	return <div>WELCOME</div>;
+	return (
+		<div>
+			<Navbar />
+		</div>
+	);
 }

@@ -84,7 +84,7 @@ body {
 
 	/* Extra Common Elements */
 	a {
-		@apply text-indigo-600 dark:text-indigo-400 hover:underline font-medium transition-colors;
+		@apply text-indigo-600 dark:text-indigo-400 font-medium transition-colors;
 	}
 
 	code {

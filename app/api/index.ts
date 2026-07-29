@@ -5,8 +5,10 @@ import {
 	type IUpdateProfile,
 	type ApiResponse,
 	type SignupResponseData,
+	type IProfile,
 } from "../../types";
 import { api } from "./client";
+import { clearToken } from "./tokenHelpers";
 
 // --- Auth API calls ---
 export const authApi = {
@@ -20,14 +22,27 @@ export const authApi = {
 			.post<ApiResponse<SignupResponseData>>("/auth/register", payload)
 			.then((res) => res.data.data);
 	},
+
+	logout: () => {
+		// Remove token from storage
+		clearToken();
+		// Or if using cookies, clear them
+		// document.cookie = "token=; Max-Age=0; path=/";
+	},
 };
 
-// // --- Profile API calls ---
-// export const profileApi = {
-// 	getProfile() {
-// 		api.get("/me").then((res) => res.data);
-// 	},
-// 	updateProfile(data: IUpdateProfile) {
-// 		api.patch("/profile", data).then((res) => res.data);
-// 	},
-// };
+// --- Profile API calls ---
+export const profileApi = {
+	async getProfile() {
+		const response = await api.get<ApiResponse<IProfile>>("/user/me");
+		return response.data.data; // full IProfile: { user, stats }
+	},
+
+	async updateProfile(payload: IUpdateProfile) {
+		const response = await api.patch<ApiResponse<IProfile>>(
+			"/user/me",
+			payload,
+		);
+		return response.data.data; // EKHANE EKTU VUL ASE... stats return kore na. only user return kore but oita dia kaj nai i guess so i wouldnt change that lol
+	},
+};

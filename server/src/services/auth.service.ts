@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import User from "../models/User.js";
+import User, { IUser } from "../models/User.js";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -25,18 +25,25 @@ export class AuthService {
 
 		const hashedPassword = await bcrypt.hash(password, 10);
 
-		const user = await User.create({
+		// SAVING USER TO DATABASE
+		const userProfile: Partial<IUser> = {
 			name,
 			email,
 			password: hashedPassword,
 			gamertag,
-		});
+			bio: "",
+			avatarUrl: "",
+		};
+
+		const user = await User.create(userProfile);
 
 		return {
 			id: user._id,
 			name: user.name,
 			email: user.email,
 			gamertag: user.gamertag,
+			bio: user.bio,
+			avatarUrl: user.avatarUrl,
 		};
 	}
 

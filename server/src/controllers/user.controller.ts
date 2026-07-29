@@ -18,6 +18,7 @@ export class UserController {
 
 			return res.status(200).json({
 				success: true,
+				message: "Profile Fetched successfully",
 				data: profileData,
 			});
 		} catch (error: any) {
@@ -77,6 +78,7 @@ export class UserController {
 
 			return res.status(200).json({
 				success: true,
+				message: "Profile updated successfully",
 				data: updatedUser,
 			});
 		} catch (error: any) {

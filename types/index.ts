@@ -3,8 +3,8 @@ export interface IUser {
 	name: string;
 	gamertag: string;
 	email: string;
-	avatarUrl?: string;
-	bio?: string;
+	avatarUrl: string;
+	bio: string;
 	role: "user" | "admin";
 }
 
@@ -29,7 +29,7 @@ export interface LoginPayload {
 
 export interface ApiResponse<T> {
 	success: boolean;
-	message: string;
+	message?: string;
 	data: T;
 }
 
@@ -41,4 +41,11 @@ export interface LoginResponseData {
 export interface SignupResponseData {
 	token: string;
 	user: { id: string; name: string; email: string; gamertag: string };
+}
+
+export interface IProfile {
+	user: IUser;
+	stats: {
+		totalPosts: number;
+	};
 }
