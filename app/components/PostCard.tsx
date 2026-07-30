@@ -56,9 +56,9 @@ export default function PostCard({ post }: PostCardProps) {
             {post.game}
           </span>
         )}
-        <span className="px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
+        {/* <span className="px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
           {post.visibility}
-        </span>
+        </span> */}
 
         {/* Comments count */}
         <div className="ml-auto flex items-center gap-1 text-gray-500">

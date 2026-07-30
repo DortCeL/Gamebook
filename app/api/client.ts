@@ -2,7 +2,7 @@ import axios from "axios";
 import { getToken } from "./tokenHelpers";
 
 export const api = axios.create({
-	baseURL: "http://localhost:4060/api",
+	baseURL: import.meta.env.VITE_API_URL,
 	timeout: 10000,
 });
 

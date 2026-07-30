@@ -131,7 +131,7 @@ function CommentItem({
           onClick={() => deleteComment(comment._id)}
           className="btn-danger"
         >
-          {deleting ? "..." : "Delete"}
+          {deleting ? "..." : "Delete Comment"}
         </button>
       </div>
 
@@ -223,7 +223,7 @@ export default function CommentSection({ postId }: { postId: string }) {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-xl bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700 transition disabled:opacity-60"
+          className="btn-primary"
         >
           {isPending ? "..." : "Comment"}
         </button>

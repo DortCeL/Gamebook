@@ -78,6 +78,7 @@ export interface IComment {
 	parentComment?: string | null;
 	createdAt: string;
 	updatedAt: string;
+	replyCount: number;
 }
 
 export interface CreatePostPayload {
