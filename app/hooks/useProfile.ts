@@ -13,7 +13,13 @@ export function useUpdateProfile() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: (payload: IUpdateProfile) => profileApi.updateProfile(payload),
+		mutationFn: ({
+			targetId,
+			payload,
+		}: {
+			targetId: string;
+			payload: IUpdateProfile;
+		}) => profileApi.updateProfile(targetId, payload),
 		onSuccess: () => {
 			// Invalidate and refetch the profile query
 			queryClient.invalidateQueries({ queryKey: ["profile"] });

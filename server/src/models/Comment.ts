@@ -7,6 +7,7 @@ export interface IComment extends Document {
 	parentComment?: Types.ObjectId; // Null for top-level comments, populated if it's a reply
 	createdAt: Date;
 	updatedAt: Date;
+	replyCount: number;
 }
 
 const commentSchema = new Schema<IComment>(
@@ -33,6 +34,10 @@ const commentSchema = new Schema<IComment>(
 			default: null,
 			index: true, // Speeds up fetching replies for a specific comment
 		},
+		replyCount: {
+			type: Number,
+			default: 0
+		}
 	},
 	{
 		timestamps: true,

@@ -34,9 +34,19 @@ export class CommentService {
 			parentComment: parentCommentId || null,
 		});
 
+		// Increment comment count
+		await Post.findByIdAndUpdate(postId, { $inc: { commentCount: 1 } });
+
+		 // If it's a reply, increment the parent's replyCount
+		 if (parentCommentId) {
+			await Comment.findByIdAndUpdate(parentCommentId, {
+			  $inc: { replyCount: 1 }
+			});
+		  }
+
 		return (await comment.save()).populate(
 			"author",
-			"username gamertag avatarUrl",
+			"name gamertag avatarUrl",
 		);
 	}
 
@@ -47,7 +57,7 @@ export class CommentService {
 		limit = 10,
 	): Promise<IComment[]> {
 		return await Comment.find({ post: postId, parentComment: null })
-			.populate("author", "username gamertag avatarUrl")
+			.populate("author", "name gamertag avatarUrl")
 			.sort({ createdAt: -1 })
 			.skip((page - 1) * limit)
 			.limit(limit);
@@ -60,7 +70,7 @@ export class CommentService {
 		limit = 10,
 	): Promise<IComment[]> {
 		return await Comment.find({ parentComment: parentCommentId })
-			.populate("author", "username gamertag avatarUrl")
+			.populate("author", "name gamertag avatarUrl")
 			.sort({ createdAt: 1 }) // Chronological order for replies
 			.skip((page - 1) * limit)
 			.limit(limit);
@@ -89,10 +99,22 @@ export class CommentService {
 			return false;
 		}
 
+		// Store parent comment ID (if any) before deletion
+		const parentCommentId = comment.parentComment;
+
 		// 3. Delete the comment AND any replies attached to it
 		await Comment.deleteMany({
 			$or: [{ _id: commentId }, { parentComment: commentId }],
 		});
+
+		await Post.findByIdAndUpdate(comment.post, { $inc: { commentCount: -1 } }); 
+
+		// If this comment was a reply, decrement its parent's replyCount by 1
+		if (parentCommentId) {
+			await Comment.findByIdAndUpdate(parentCommentId, {
+			$inc: { replyCount: -1 },
+			});
+		}
 
 		return true;
 	}

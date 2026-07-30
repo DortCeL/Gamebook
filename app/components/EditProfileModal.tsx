@@ -1,11 +1,12 @@
-import { useState, useEffect, useRef } from "react";
-import type { IProfile, IUpdateProfile } from "~/types";
+import { useState, useEffect } from "react";
+import type { IProfile, IUpdateProfile } from "../../types";
 
 interface EditProfileModalProps {
 	isOpen: boolean;
 	onClose: () => void;
 	profile: IProfile;
-	onUpdate: (payload: IUpdateProfile) => void;
+	userId: string;
+	onUpdate: (variables: { targetId: string; payload: IUpdateProfile }) => void;
 	isUpdating: boolean;
 }
 
@@ -13,6 +14,7 @@ export default function EditProfileModal({
 	isOpen,
 	onClose,
 	profile,
+	userId,
 	onUpdate,
 	isUpdating,
 }: EditProfileModalProps) {
@@ -21,8 +23,7 @@ export default function EditProfileModal({
 	const [gamertag, setGamertag] = useState("");
 	const [bio, setBio] = useState("");
 	const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-	const [avatarFile, setAvatarFile] = useState<File | null>(null);
-	const fileInputRef = useRef<HTMLInputElement>(null);
+	const [avatarUrlInput, setAvatarUrlInput] = useState("");
 
 	// Reset form when profile changes or modal opens
 	useEffect(() => {
@@ -31,19 +32,17 @@ export default function EditProfileModal({
 			setGamertag(profile.user.gamertag || "");
 			setBio(profile.user.bio || "");
 			setAvatarPreview(profile.user.avatarUrl || null);
-			setAvatarFile(null);
+			setAvatarUrlInput("");
 		}
 	}, [profile, isOpen]);
 
-	const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0];
-		if (file) {
-			setAvatarFile(file);
-			const reader = new FileReader();
-			reader.onloadend = () => {
-				setAvatarPreview(reader.result as string);
-			};
-			reader.readAsDataURL(file);
+	const handleAvatarUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const url = e.target.value;
+		setAvatarUrlInput(url);
+		if (url.trim()) {
+			setAvatarPreview(url.trim());
+		} else {
+			setAvatarPreview(profile.user.avatarUrl || null);
 		}
 	};
 
@@ -56,18 +55,18 @@ export default function EditProfileModal({
 		if (gamertag !== profile.user.gamertag) payload.gamertag = gamertag;
 		if (bio !== profile.user.bio) payload.bio = bio;
 
-		// If a new avatar file is selected, use the base64 preview as the new URL
-		if (avatarFile && avatarPreview) {
-			payload.avatarUrl = avatarPreview;
+		// Avatar URL
+		if (avatarUrlInput.trim()) {
+			payload.avatarUrl = avatarUrlInput.trim();
 		}
 
-		// If nothing changed, just close the modal
+		// If nothing changed, close
 		if (Object.keys(payload).length === 0) {
 			onClose();
 			return;
 		}
 
-		onUpdate(payload);
+		onUpdate({ targetId: userId, payload });
 	};
 
 	if (!isOpen) return null;
@@ -88,10 +87,10 @@ export default function EditProfileModal({
 					</div>
 
 					<form onSubmit={handleSubmit} className='space-y-4'>
-						{/* Avatar Upload */}
+						{/* Avatar URL */}
 						<div>
 							<label className='block text-sm font-medium text-gray-700 mb-1'>
-								Avatar
+								Avatar URL
 							</label>
 							<div className='flex items-center gap-4'>
 								<div className='w-16 h-16 rounded-full overflow-hidden border-2 border-gray-300 shrink-0'>
@@ -107,14 +106,19 @@ export default function EditProfileModal({
 										</div>
 									)}
 								</div>
-								<div>
+								<div className='flex-1'>
 									<input
-										type='file'
-										accept='image/*'
-										ref={fileInputRef}
-										onChange={handleAvatarChange}
-										className='block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100'
+										id='avatar-url'
+										type='url'
+										value={avatarUrlInput}
+										onChange={handleAvatarUrlChange}
+										placeholder='Paste image URL from Facebook, etc.'
+										className='w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition'
 									/>
+									<p className='text-xs text-gray-400 mt-1'>
+										Paste a direct link to your profile picture (e.g., from
+										Facebook, Twitter, or any hosting service)
+									</p>
 								</div>
 							</div>
 						</div>

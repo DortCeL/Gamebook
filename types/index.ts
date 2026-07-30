@@ -30,7 +30,7 @@ export interface LoginPayload {
 export interface ApiResponse<T> {
 	success: boolean;
 	message?: string;
-	data: T;
+	data: T | T[];
 }
 
 export interface LoginResponseData {
@@ -48,4 +48,55 @@ export interface IProfile {
 	stats: {
 		totalPosts: number;
 	};
+}
+
+export interface IAuthor {
+	_id: string;
+	name?: string;
+	gamertag?: string;
+	avatarUrl?: string;
+}
+
+export interface IPost {
+	_id: string;
+	commentCount: number;
+	author: string | IAuthor;
+	type: "screenshot" | "review" | "text";
+	game?: string;
+	content?: string;
+	images?: string[];
+	visibility: "public" | "friends";
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface IComment {
+	_id: string;
+	post: string;
+	author: string | IAuthor;
+	content: string;
+	parentComment?: string | null;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface CreatePostPayload {
+	type?: IPost["type"];
+	game?: string;
+	content?: string;
+	images?: string[];
+	visibility?: IPost["visibility"];
+}
+
+export interface CreateCommentPayload {
+	postId: string;
+	content: string;
+	parentCommentId?: string;
+}
+
+export interface ApiListResponse<T> {
+	success: boolean;
+	count?: number;
+	message?: string;
+	data: T[];
 }

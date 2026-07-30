@@ -26,7 +26,7 @@ export class PostService {
 		}
 
 		return await Post.find(query)
-			.populate("author", "username avatar") // Adjust fields as needed
+			.populate("author", "name email gamertag avatarUrl") // Adjust fields as needed
 			.populate("game", "title coverImage")
 			.sort({ createdAt: -1 })
 			.skip((page - 1) * limit)
@@ -36,7 +36,7 @@ export class PostService {
 	// Get single post by ID
 	static async getPostById(postId: string): Promise<IPost | null> {
 		return await Post.findById(postId)
-			.populate("author", "username avatar")
+			.populate("author", "name email gamertag avatarUrl")
 			.populate("game", "title coverImage");
 	}
 
@@ -61,7 +61,7 @@ export class PostService {
 		limit = 10,
 	): Promise<IPost[]> {
 		return await Post.find({ author: authorId })
-			.populate("author", "username avatar")
+			.populate("author", "name email gamertag avatarUrl")
 			.populate("game", "title coverImage")
 			.sort({ createdAt: -1 })
 			.skip((page - 1) * limit)

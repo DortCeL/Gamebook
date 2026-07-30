@@ -2,6 +2,8 @@ import { Link, useNavigate } from "react-router";
 import { authApi } from "~/api";
 import { useProfile } from "~/hooks/useProfile";
 
+import { Avatar } from "~/components/Avatar";
+
 export default function Navbar() {
 	const { data: profile, isLoading } = useProfile();
 	const navigate = useNavigate();
@@ -17,10 +19,29 @@ export default function Navbar() {
 				<div className='flex justify-between items-center h-16'>
 					{/* Logo */}
 					<Link to='/' className='text-2xl font-bold'>
-						<span className='bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 text-transparent bg-clip-text'>
+						<span className='bg-linear-to-r from-red-600 via-pink-600 to-orange-600 text-transparent bg-clip-text'>
 							Gamebook
 						</span>
 					</Link>
+
+					{/* Nav links */}
+					<div className='hidden sm:flex items-center gap-4'>
+						<Link to='/' className='text-sm text-white/90 hover:text-white'>
+							Feed
+						</Link>
+						<Link
+							to='/posts/new'
+							className='text-sm text-white/90 hover:text-white'
+						>
+							New Post
+						</Link>
+						<Link
+							to='/posts/mine'
+							className='text-sm text-white/90 hover:text-white'
+						>
+							My Posts
+						</Link>
+					</div>
 
 					{/* Right side – name + profile icon  AND SIGNOUT BUTTON*/}
 					<div className='flex items-center gap-3'>
@@ -40,19 +61,12 @@ export default function Navbar() {
 											? `${profile.user.gamertag}`
 											: profile?.user?.name || "User"}
 									</span>
-									<div className='w-10 h-10 rounded-full overflow-hidden border-2 border-gray-300 hover:border-blue-500 transition shrink-0'>
-										{profile?.user?.avatarUrl ? (
-											<img
-												src={profile.user.avatarUrl}
-												alt={profile.user.name || "Profile"}
-												className='w-full h-full object-cover'
-											/>
-										) : (
-											<div className='w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm'>
-												{profile?.user?.name?.charAt(0).toUpperCase() || "?"}
-											</div>
-										)}
-									</div>
+									<Avatar
+										src={profile?.user?.avatarUrl}
+										alt={profile?.user?.name}
+										fallback={profile?.user?.name}
+										size="md"
+									/>
 								</Link>
 							)}
 						</div>

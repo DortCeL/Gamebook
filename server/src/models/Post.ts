@@ -10,6 +10,8 @@ export interface IPost extends Document {
 	visibility: "public" | "friends";
 	createdAt: Date;
 	updatedAt: Date;
+	commentCount: number;
+
 }
 
 const postSchema = new Schema<IPost>(
@@ -45,6 +47,10 @@ const postSchema = new Schema<IPost>(
 			type: String,
 			enum: ["public", "friends"],
 			default: "public",
+		},
+		commentCount: { 
+			type: Number, 
+			default: 0 
 		},
 	},
 	{
