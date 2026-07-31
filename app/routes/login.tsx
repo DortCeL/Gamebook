@@ -1,12 +1,10 @@
-import { useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { useLogin } from "../hooks/useAuth";
-import { useState } from "react";
 
 export default function LoginPage() {
 	const navigate = useNavigate();
-
-	const [hittingRoute, setHittingRoute] = useState()
-
+	const [searchParams] = useSearchParams();
+	const redirectTo = searchParams.get("redirect") || "/";
 
 	const {
 		mutate: login,
@@ -24,8 +22,7 @@ export default function LoginPage() {
 			{ email, password },
 			{
 				onSuccess: () => {
-					console.log("Login success from login.tsx");
-					navigate("/profile");
+					navigate(redirectTo, { replace: true });
 				},
 				onError: (err) => {
 					console.error("Login error:", err);
@@ -94,17 +91,14 @@ export default function LoginPage() {
 
 				<p className='text-center text-sm text-gray-500'>
 					Don't have an account?{" "}
-					<a
-						href='/signup'
+					<Link
+						to='/signup'
 						className='text-blue-600 hover:underline font-medium'
 					>
 						Sign up
-					</a>
+					</Link>
 				</p>
 			</div>
-
-
-			<h2 className="text-xl text-center">{hittingRoute}</h2>
 		</div>
 	);
 }

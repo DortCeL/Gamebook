@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useSignup } from "../hooks/useAuth";
 
 export default function SignupPage() {
@@ -21,8 +21,7 @@ export default function SignupPage() {
 			{ email, password, name, gamertag },
 			{
 				onSuccess: () => {
-					console.log("Signup and auto login successful!");
-					navigate("/profile");
+					navigate("/", { replace: true });
 				},
 				onError: (err) => {
 					console.error("Signup or auto login failed:", err);
@@ -125,12 +124,12 @@ export default function SignupPage() {
 
 				<p className='text-center text-sm text-gray-500'>
 					Already have an account?{" "}
-					<a
-						href='/login'
+					<Link
+						to='/login'
 						className='text-blue-600 hover:underline font-medium'
 					>
 						Sign in
-					</a>
+					</Link>
 				</p>
 			</div>
 		</div>
