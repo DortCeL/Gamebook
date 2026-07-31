@@ -12,10 +12,10 @@
 
 		// Stricter Typechecking Options
 		"noUncheckedIndexedAccess": true,
-		"exactOptionalPropertyTypes": true,
+		// "exactOptionalPropertyTypes": true,
 
 		// Recommended Options
-		"strict": false,
+		// "strict": true,
 		"skipLibCheck": true
 	}
 }
