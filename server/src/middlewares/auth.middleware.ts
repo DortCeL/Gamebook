@@ -24,7 +24,7 @@ export const authenticate = (
 		const token = authHeader.split(" ")[1];
 
 		// Verify token integrity and expiration
-		const decoded = jwt.verify(token, JWT_SECRET) as CustomJwtPayload;
+		const decoded = jwt.verify(token as string, JWT_SECRET) as CustomJwtPayload;
 
 		// Attach decoded payload to request object
 		req.user = decoded;
