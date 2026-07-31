@@ -1,9 +1,15 @@
 import { Post, IPost } from "../models/Post.js";
 import User from "../models/User.js";
 
+export interface CreatePostPayload {
+	title: string;
+	content: string;
+	author: string;
+}
+
 export class PostService {
 	// Create a new post
-	static async createPost(data): Promise<IPost> {
+	static async createPost(data: CreatePostPayload): Promise<IPost> {
 		const { author: authorId } = data;
 		const authorExists = await User.findOne({ _id: authorId });
 		if (!authorExists) {
