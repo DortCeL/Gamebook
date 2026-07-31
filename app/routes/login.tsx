@@ -1,8 +1,12 @@
 import { useNavigate } from "react-router";
 import { useLogin } from "../hooks/useAuth";
+import { useState } from "react";
 
 export default function LoginPage() {
 	const navigate = useNavigate();
+
+	const [hittingRoute, setHittingRoute] = useState()
+
 
 	const {
 		mutate: login,
@@ -98,6 +102,9 @@ export default function LoginPage() {
 					</a>
 				</p>
 			</div>
+
+
+			<h2 className="text-xl text-center">{hittingRoute}</h2>
 		</div>
 	);
 }

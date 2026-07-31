@@ -7,12 +7,9 @@ import commentRoutes from "./routes/comment.routes.js";
 
 const app = express();
 
-
-
 // Global Middleware
 app.use(cors({
-	origin: [ "http://localhost:5173", process.env.CLIENT_URL!], // deployed frontend URL, set in Railway env vars
-	credentials: true // only needed if i use cookies
+	origin: [ "http://localhost:5173", process.env.CLIENT_URL as string], // deployed frontend URL, set in Railway env vars
 })); // might give issue on frontend
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

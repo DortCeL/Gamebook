@@ -6,6 +6,8 @@ import { usePosts } from "~/hooks/usePosts";
 export default function Home() {
 	const { data: posts, isLoading, error } = usePosts();
 
+	console.log('ENV URL = ', import.meta.env.VITE_API_URL)
+
 	return (
 		<div className='min-h-screen bg-gray-50'>
 			<Navbar />
