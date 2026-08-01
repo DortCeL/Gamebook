@@ -7,6 +7,7 @@ const router = Router();
 router.get("/me", authenticate, UserController.getProfile);
 router.get("/search", authenticate, UserController.searchUsers);
 router.get("/", authenticate, UserController.getAllUsers);
+router.get("/:id", authenticate, UserController.getUserById);
 router.delete("/:id", authenticate, UserController.deleteAccount);
 router.patch("/:id", authenticate, UserController.updateProfile);
 

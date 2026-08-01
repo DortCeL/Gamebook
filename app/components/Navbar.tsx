@@ -3,6 +3,7 @@ import { authApi } from "~/api";
 import { useProfile } from "~/hooks/useProfile";
 
 import { Avatar } from "~/components/Avatar";
+import UserSearch from "~/components/UserSearch";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function Navbar() {
@@ -46,6 +47,8 @@ export default function Navbar() {
 							My Posts
 						</Link>
 					</div>
+
+					<UserSearch />
 
 					{/* Right side – name + profile icon  AND SIGNOUT BUTTON*/}
 					<div className='flex items-center gap-3'>

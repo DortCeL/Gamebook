@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CreatePostPayload, IPost } from "../../types";
 import { postApi } from "~/api";
 
+// get the posts of the current user
 export function usePosts(page = 1, limit = 10) {
 	return useQuery<IPost[]>({
 		queryKey: ["posts", page, limit],
@@ -9,6 +10,16 @@ export function usePosts(page = 1, limit = 10) {
 	});
 }
 
+// get the posts of a specific user
+export function useUserPosts(authorId: string, page = 1, limit = 20) {
+	return useQuery<IPost[]>({
+		queryKey: ["posts", "author", authorId, page, limit],
+		queryFn: () => postApi.getAll(page, limit, authorId),
+		enabled: !!authorId,
+	});
+}
+
+// get the posts of the current user
 export function useMyPosts(page = 1, limit = 10) {
 	return useQuery<IPost[]>({
 		queryKey: ["myPosts", page, limit],
@@ -16,6 +27,7 @@ export function useMyPosts(page = 1, limit = 10) {
 	});
 }
 
+// get a specific post
 export function usePost(id: string) {
 	return useQuery<IPost>({
 		queryKey: ["post", id],
@@ -24,6 +36,7 @@ export function usePost(id: string) {
 	});
 }
 
+// create a new post
 export function useCreatePost() {
 	const queryClient = useQueryClient();
 
@@ -37,6 +50,7 @@ export function useCreatePost() {
 	});
 }
 
+// delete a post
 export function useDeletePost() {
 	const queryClient = useQueryClient();
 

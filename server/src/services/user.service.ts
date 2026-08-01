@@ -28,6 +28,27 @@ export class UserService {
 		};
 	}
 
+	// get the profile of a specific user
+	static async getUserProfile(userId: string): Promise<UserProfileResponse> {
+		const user = await User.findById(userId).select(
+			"name gamertag avatarUrl bio role createdAt",
+		);
+
+		if (!user) {
+			throw new Error("User not found.");
+		}
+
+		const totalPosts = await Post.countDocuments({ author: userId });
+
+		return {
+			user,
+			stats: {
+				totalPosts,
+			},
+		};
+	}
+
+	// delete a user
 	static async deleteUser(userId: string): Promise<IUser | null> {
 		// 1. Fetch the user document instance
 		const user = await User.findById(userId);
@@ -42,6 +63,7 @@ export class UserService {
 		return user;
 	}
 
+	// update the profile of a user
 	static async updateProfile(
 		userId: string,
 		updateData: Partial<IUser>,
@@ -79,6 +101,7 @@ export class UserService {
 		);
 	}
 
+	// search for users
 	static async searchUsers(
 		query: string,
 		currentUserId: string,
@@ -97,6 +120,7 @@ export class UserService {
 			.limit(limit);
 	}
 
+	// get all users
 	static async getAllUsers(
 		currentUserId: string,
 		page = 1,

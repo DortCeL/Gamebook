@@ -1,26 +1,29 @@
 import { Link, useNavigate, useParams } from "react-router";
 import Navbar from "~/components/Navbar";
 import CommentSection from "~/components/CommentSection";
+import AuthorLink from "~/components/AuthorLink";
 import { useDeletePost, usePost } from "~/hooks/usePosts";
-import { getAuthor } from "~/utils/postHelpers";
 import { timeAgo } from "~/utils/timeFormatter";
-import { Avatar } from "~/components/Avatar";
 
+// a page to display a specific post
 export default function PostDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: post, isLoading, error } = usePost(id ?? "");
   const { mutate: deletePost, isPending: deleting } = useDeletePost();
 
+  // if the post id is invalid, show a message
   if (!id) {
     return <p className="p-8">Invalid post id</p>;
   }
 
+  // if the user confirms the deletion, delete the post
   const handleDelete = () => {
     if (!confirm("Delete this post?")) return;
     deletePost(id, { onSuccess: () => navigate("/") });
   };
 
+  // display the post detail page
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -41,30 +44,16 @@ export default function PostDetailPage() {
             {/* Post Card (same design as PostCard, but without the outer Link) */}
             <article className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
               {/* Header: Avatar | Name+Gamertag | Time + Delete */}
-              <div className="flex items-start gap-4">
-                <Avatar
-                  src={getAuthor(post.author).avatarUrl}
-                  alt={getAuthor(post.author).name}
-                  fallback={getAuthor(post.author).name}
+              <div className="flex items-start justify-between gap-4">
+                <AuthorLink
+                  author={post.author}
                   size="xl"
-                  className="border-2 border-gray-200 shadow-sm"
+                  avatarClassName="border-2 border-gray-200 shadow-sm"
+                  nameClassName="text-lg font-bold text-gray-900 leading-tight"
                 />
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="truncate">
-                      <h3 className="text-lg font-bold text-gray-900 leading-tight">
-                        {getAuthor(post.author).name}
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        @{getAuthor(post.author).gamertag}
-                      </p>
-                    </div>
-                    <span className="text-sm text-gray-400 whitespace-nowrap">
-                      {timeAgo(post.createdAt)}
-                    </span>
-                  </div>
-                </div>
+                <span className="text-sm text-gray-400 whitespace-nowrap">
+                  {timeAgo(post.createdAt)}
+                </span>
               </div>
 
               {/* Content */}
@@ -119,7 +108,7 @@ export default function PostDetailPage() {
               </div>
             </article>
 
-            {/* Comment Section (unchanged) */}
+            {/* Comment Section*/}
             <CommentSection postId={post._id} />
           </>
         )}

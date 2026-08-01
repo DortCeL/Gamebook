@@ -6,9 +6,8 @@ import {
   useDeleteComment,
   useReplies,
 } from "~/hooks/useComments";
-import { getAuthor } from "~/utils/postHelpers";
 import { timeAgo } from "~/utils/timeFormatter";
-import { Avatar } from "~/components/Avatar";
+import AuthorLink from "~/components/AuthorLink";
 
 // ----- Reply Form (inline) -----
 function ReplyForm({
@@ -70,29 +69,19 @@ function CommentItem({
   const { mutate: deleteComment, isPending: deleting } =
     useDeleteComment(postId);
 
-  const author = getAuthor(comment.author);
-
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
       {/* Header: Avatar + Name/Gamertag + Time */}
       <div className="flex items-start gap-3">
-        <Avatar
-          src={author.avatarUrl}
-          alt={author.name}
-          fallback={author.name}
-          size="lg" // small avatar (w-8 h-8)
-          className="border border-gray-200"
+        <AuthorLink
+          author={comment.author}
+          size="lg"
+          layout="column"
+          avatarClassName="border border-gray-200"
+          nameClassName="text-sm font-semibold text-gray-900"
         />
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-2">
-            <div className="truncate flex flex-col justify-start gap-1">
-              <span className="text-sm font-semibold text-gray-900">
-                {author.name}
-              </span>
-              <span className="ml-1.5 text-xs text-gray-500">
-                @{author.gamertag}
-              </span>
-            </div>
+          <div className="flex items-center justify-end gap-2">
             <span className="text-xs text-gray-400 whitespace-nowrap">
               {timeAgo(comment.createdAt)}
             </span>
@@ -154,25 +143,21 @@ function CommentItem({
             <p className="text-xs text-gray-500">No replies yet.</p>
           )}
           {replies?.map((reply) => {
-            const replyAuthor = getAuthor(reply.author);
             return (
               <div
                 key={reply._id}
                 className="rounded-lg border border-gray-100 bg-gray-50 p-3"
               >
                 <div className="flex items-start gap-2.5">
-                  <Avatar
-                    src={replyAuthor.avatarUrl}
-                    alt={replyAuthor.name}
-                    fallback={replyAuthor.name}
-                    size="xs" // extra small (w-6 h-6)
-                    className="border border-gray-200"
+                  <AuthorLink
+                    author={reply.author}
+                    size="xs"
+                    showGamertag={false}
+                    avatarClassName="border border-gray-200"
+                    nameClassName="text-xs font-semibold text-gray-900"
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-semibold text-gray-900">
-                        {replyAuthor.name}
-                      </span>
                       <span className="text-xs text-gray-400 whitespace-nowrap">
                         {timeAgo(reply.createdAt)}
                       </span>

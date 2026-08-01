@@ -101,3 +101,23 @@ export interface ApiListResponse<T> {
 	message?: string;
 	data: T[];
 }
+
+// a friendship between two users
+export interface IFriendship {
+	_id: string;
+	requester: IAuthor;
+	recipient: IAuthor;
+	status: "pending" | "accepted" | "declined";
+	createdAt: string;
+	updatedAt: string;
+}
+
+// a list of friends for the current user
+export interface IFriendEntry {
+	_id: string;
+	friend: IAuthor;
+	since: string;
+}
+
+// the status of a friendship between two users
+export type FriendshipStatus = "none" | "friends" | "sent" | "incoming";

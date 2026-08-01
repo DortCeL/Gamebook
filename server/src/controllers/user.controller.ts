@@ -130,6 +130,7 @@ export class UserController {
 		}
 	}
 
+	// SEARCH FOR USERS
 	static async searchUsers(req: Request, res: Response) {
 		try {
 			const userId = req.user?._id;
@@ -157,6 +158,7 @@ export class UserController {
 		}
 	}
 
+	// GET ALL USERS
 	static async getAllUsers(req: Request, res: Response) {
 		try {
 			const userId = req.user?._id;
@@ -179,6 +181,35 @@ export class UserController {
 			});
 		} catch (error: any) {
 			return res.status(500).json({
+				success: false,
+				message: error.message,
+			});
+		}
+	}
+
+	// GET USER PROFILE
+	static async getUserById(req: Request, res: Response) {
+		try {
+			const viewerId = req.user?._id;
+			const { id } = req.params;
+
+			if (!viewerId) {
+				return res.status(401).json({
+					success: false,
+					message: "Unauthorized: Authentication required.",
+				});
+			}
+
+			const profileData = await UserService.getUserProfile(id as string);
+
+			return res.status(200).json({
+				success: true,
+				message: "Profile fetched successfully",
+				data: profileData,
+			});
+		} catch (error: any) {
+			const status = error.message === "User not found." ? 404 : 500;
+			return res.status(status).json({
 				success: false,
 				message: error.message,
 			});
