@@ -8,6 +8,7 @@ export default [
 	layout("routes/_protected.tsx", [
 		index("routes/home.tsx"),
 		route("/profile", "routes/profile.tsx"),
+		route("/users/:userId", "routes/users.$userId.tsx"),
 		route("/posts/new", "routes/posts.new.tsx"),
 		route("/posts/mine", "routes/posts.mine.tsx"),
 		route("/posts/:id", "routes/posts.$id.tsx"),

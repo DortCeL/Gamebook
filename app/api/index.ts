@@ -12,6 +12,8 @@ import type {
 	CreatePostPayload,
 	CreateCommentPayload,
 	IAuthor,
+	IFriendship,
+	IFriendEntry,
 } from "../../types";
 import { api } from "./client";
 import { clearToken } from "./tokenHelpers";
@@ -38,6 +40,11 @@ export const authApi = {
 export const profileApi = {
 	async getProfile() {
 		const response = await api.get<ApiResponse<IProfile>>("/users/me");
+		return response.data.data as IProfile;
+	},
+
+	async getById(userId: string) {
+		const response = await api.get<ApiResponse<IProfile>>(`/users/${userId}`);
 		return response.data.data as IProfile;
 	},
 
@@ -126,5 +133,51 @@ export const userApi = {
 			params: { q: query },
 		});
 		return response.data.data;
+	},
+};
+
+export const friendsApi = {
+	async list() {
+		const response = await api.get<ApiListResponse<IFriendEntry>>("/friends");
+		return response.data.data;
+	},
+
+	async getIncomingRequests() {
+		const response = await api.get<ApiListResponse<IFriendship>>(
+			"/friends/requests",
+		);
+		return response.data.data;
+	},
+
+	async getSentRequests() {
+		const response = await api.get<ApiListResponse<IFriendship>>(
+			"/friends/requests/sent",
+		);
+		return response.data.data;
+	},
+
+	async sendRequest(userId: string) {
+		const response = await api.post<ApiResponse<IFriendship>>(
+			`/friends/request/${userId}`,
+		);
+		return response.data.data as IFriendship;
+	},
+
+	async acceptRequest(requestId: string) {
+		const response = await api.patch<ApiResponse<IFriendship>>(
+			`/friends/accept/${requestId}`,
+		);
+		return response.data.data as IFriendship;
+	},
+
+	async declineRequest(requestId: string) {
+		const response = await api.patch<ApiResponse<IFriendship>>(
+			`/friends/decline/${requestId}`,
+		);
+		return response.data.data as IFriendship;
+	},
+
+	async remove(friendshipId: string) {
+		await api.delete(`/friends/${friendshipId}`);
 	},
 };
