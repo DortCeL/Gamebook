@@ -3,12 +3,16 @@ import { authApi } from "~/api";
 import { useProfile } from "~/hooks/useProfile";
 
 import { Avatar } from "~/components/Avatar";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Navbar() {
 	const { data: profile, isLoading } = useProfile();
 	const navigate = useNavigate();
+	const queryClient = useQueryClient();
 
 	const handleLogout = () => {
+		// Clear ALL TanStack Query caches
+		queryClient.clear()
 		authApi.logout();
 		navigate("/login");
 	};
