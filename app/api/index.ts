@@ -11,6 +11,7 @@ import type {
 	IComment,
 	CreatePostPayload,
 	CreateCommentPayload,
+	IAuthor,
 } from "../../types";
 import { api } from "./client";
 import { clearToken } from "./tokenHelpers";
@@ -36,13 +37,13 @@ export const authApi = {
 // --- Profile API calls ---
 export const profileApi = {
 	async getProfile() {
-		const response = await api.get<ApiResponse<IProfile>>("/user/me");
+		const response = await api.get<ApiResponse<IProfile>>("/users/me");
 		return response.data.data as IProfile;
 	},
 
 	async updateProfile(targetId: string, payload: IUpdateProfile) {
 		const response = await api.patch<ApiResponse<IProfile>>(
-			`/user/${targetId}`,
+			`/users/${targetId}`,
 			payload,
 		);
 		return response.data.data as IProfile;
@@ -116,5 +117,14 @@ export const commentApi = {
 
 	async delete(id: string) {
 		await api.delete(`/comments/${id}`);
+	},
+};
+
+export const userApi = {
+	async search(query: string) {
+		const response = await api.get<ApiListResponse<IAuthor>>("/users/search", {
+			params: { q: query },
+		});
+		return response.data.data;
 	},
 };

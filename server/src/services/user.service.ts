@@ -78,4 +78,34 @@ export class UserService {
 			{ new: true, runValidators: true },
 		);
 	}
+
+	static async searchUsers(
+		query: string,
+		currentUserId: string,
+		limit = 10,
+	): Promise<IUser[]> {
+		const trimmed = query.trim();
+		if (!trimmed) return [];
+
+		const regex = new RegExp(trimmed.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+
+		return User.find({
+			_id: { $ne: currentUserId },
+			$or: [{ name: regex }, { gamertag: regex }],
+		})
+			.select("name gamertag avatarUrl")
+			.limit(limit);
+	}
+
+	static async getAllUsers(
+		currentUserId: string,
+		page = 1,
+		limit = 20,
+	): Promise<IUser[]> {
+		return User.find({ _id: { $ne: currentUserId } })
+			.select("name gamertag avatarUrl bio")
+			.sort({ name: 1 })
+			.skip((page - 1) * limit)
+			.limit(limit);
+	}
 }

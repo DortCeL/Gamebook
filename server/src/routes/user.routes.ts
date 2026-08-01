@@ -4,8 +4,9 @@ import { authenticate } from "../middlewares/auth.middleware.js"; // Update path
 
 const router = Router();
 
-// Protected route: Users can delete their account
 router.get("/me", authenticate, UserController.getProfile);
+router.get("/search", authenticate, UserController.searchUsers);
+router.get("/", authenticate, UserController.getAllUsers);
 router.delete("/:id", authenticate, UserController.deleteAccount);
 router.patch("/:id", authenticate, UserController.updateProfile);
 

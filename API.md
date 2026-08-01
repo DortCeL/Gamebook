@@ -253,11 +253,11 @@ Authenticate and receive a JWT.
 
 ## User Routes
 
-Base path: `/api/user`
+Base path: `/api/users`
 
 All routes in this group require authentication.
 
-### `GET /api/user/me`
+### `GET /api/users/me`
 
 Get the logged-in user's profile and post count.
 
@@ -299,7 +299,7 @@ Get the logged-in user's profile and post count.
 
 ---
 
-### `PATCH /api/user/:id`
+### `PATCH /api/users/:id`
 
 Update the authenticated user's profile. Users may only update their own account (`:id` must match the token's `_id`).
 
@@ -360,7 +360,7 @@ Update the authenticated user's profile. Users may only update their own account
 
 ---
 
-### `DELETE /api/user/:id`
+### `DELETE /api/users/:id`
 
 Delete the authenticated user's account and all of their posts (cascade delete). Users may only delete their own account.
 
@@ -853,9 +853,9 @@ Copy `.env.example` to `.env` in the `server/` directory:
 | `GET`    | `/api/health`                     | No       | Health check JSON              |
 | `POST`   | `/api/auth/register`              | No       | Register user                  |
 | `POST`   | `/api/auth/login`                 | No       | Login, get JWT                 |
-| `GET`    | `/api/user/me`                    | Yes      | Current user profile + stats   |
-| `PATCH`  | `/api/user/:id`                   | Yes      | Update own profile             |
-| `DELETE` | `/api/user/:id`                   | Yes      | Delete own account + posts     |
+| `GET`    | `/api/users/me`                    | Yes      | Current user profile + stats   |
+| `PATCH`  | `/api/users/:id`                   | Yes      | Update own profile             |
+| `DELETE` | `/api/users/:id`                   | Yes      | Delete own account + posts     |
 | `GET`    | `/api/post`                       | No       | List public posts              |
 | `GET`    | `/api/post/myposts`               | Yes      | List own posts                 |
 | `GET`    | `/api/post/:id`                   | No       | Get post by ID                 |
