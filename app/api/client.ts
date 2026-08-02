@@ -1,5 +1,6 @@
 import axios from "axios";
 import { clearToken, getToken } from "./tokenHelpers";
+import { getApiErrorMessage } from "~/utils/apiError";
 
 export const api = axios.create({
 	baseURL: `${import.meta.env.VITE_API_URL}/api`,
@@ -19,21 +20,18 @@ api.interceptors.response.use(
 	// If successful, just pass the response through
 	(response) => response, 	
 	// If there's an error, handle it here
-	(error) => { 				
-		if (error.response?.status === 401 && typeof window !== "undefined") {	
-			// typeof window check : Ensures this runs in the browser, not on the server (important for Next.js/SSR)
+	(error) => {
+		if (error.response?.status === 401 && typeof window !== "undefined") {
 			const path = window.location.pathname;
-
-			// checks if user is on public page (signup or login)
 			const isAuthPage = path === "/login" || path === "/signup";
 
-			// Only redirect if NOT already on login/signup (prevents infinite redirect loops)
 			if (!isAuthPage) {
 				clearToken();
 				window.location.href = `/login?redirect=${encodeURIComponent(path)}`;
 			}
 		}
 
-		return Promise.reject(error);
+		const message = getApiErrorMessage(error);
+		return Promise.reject(new Error(message));
 	},
 );

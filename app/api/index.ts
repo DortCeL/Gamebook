@@ -14,6 +14,8 @@ import type {
 	IAuthor,
 	IFriendship,
 	IFriendEntry,
+	IMessage,
+	IConversation,
 } from "../../types";
 import { api } from "./client";
 import { clearToken } from "./tokenHelpers";
@@ -179,5 +181,41 @@ export const friendsApi = {
 
 	async remove(friendshipId: string) {
 		await api.delete(`/friends/${friendshipId}`);
+	},
+};
+
+export const conversationApi = {
+	async list() {
+		const response = await api.get<ApiListResponse<IConversation>>(
+			"/conversations",
+		);
+		return response.data.data;
+	},
+
+	async create(recipientId: string) {
+		const response = await api.post<ApiResponse<IConversation>>(
+			"/conversations",
+			{ recipientId },
+		);
+		return response.data.data as IConversation;
+	},
+
+	async getMessages(conversationId: string) {
+		const response = await api.get<ApiListResponse<IMessage>>(
+			`/conversations/${conversationId}/messages`,
+		);
+		return response.data.data;
+	},
+
+	async sendMessage(conversationId: string, content: string) {
+		const response = await api.post<ApiResponse<IMessage>>(
+			`/conversations/${conversationId}/messages`,
+			{ content },
+		);
+		return response.data.data as IMessage;
+	},
+
+	async markRead(conversationId: string) {
+		await api.patch(`/conversations/${conversationId}/read`);
 	},
 };

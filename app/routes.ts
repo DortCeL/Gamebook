@@ -12,5 +12,7 @@ export default [
 		route("/posts/new", "routes/posts.new.tsx"),
 		route("/posts/mine", "routes/posts.mine.tsx"),
 		route("/posts/:id", "routes/posts.$id.tsx"),
+		route("/chat", "routes/chat.tsx"),
+		route("/chat/:friendId", "routes/chat.$friendId.tsx"),
 	]),
 ] satisfies RouteConfig;

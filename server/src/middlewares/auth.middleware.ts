@@ -26,8 +26,11 @@ export const authenticate = (
 		// Verify token integrity and expiration
 		const decoded = jwt.verify(token as string, JWT_SECRET) as CustomJwtPayload;
 
-		// Attach decoded payload to request object
-		req.user = decoded;
+		// Attach decoded payload to request object (normalize _id to string)
+		req.user = {
+			...decoded,
+			_id: String(decoded._id),
+		};
 
 		//*** DEBUGGING  SECTION DELETE LATER !!!
 		// return res.status(420).json({ decodedToken: decoded, user: req.user });

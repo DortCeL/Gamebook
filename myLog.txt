@@ -30,6 +30,15 @@ THE FIX ? ===> call login in the singup component so that after signup, login au
 
 
 
+
+
+*** Implementing chat
+-> Socket.io needs the raw http.Server, not the Express app directly — that's why you wrap it with http.createServer(app).
+
+
+
+
+
 =========================================================================================================================================================================================
 
 ### TODO: 
@@ -38,3 +47,5 @@ THE FIX ? ===> call login in the singup component so that after signup, login au
 
 1. Reset password pipeline
 2. check how pagination works in comment service (getComments, getReplies)
+
+

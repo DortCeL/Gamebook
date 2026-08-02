@@ -46,6 +46,12 @@ export default function Navbar() {
 						>
 							My Posts
 						</Link>
+						<Link
+							to='/chat'
+							className='text-sm text-white/90 hover:text-white'
+						>
+							Chat
+						</Link>
 					</div>
 
 					<UserSearch />
