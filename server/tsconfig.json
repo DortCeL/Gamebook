@@ -6,8 +6,8 @@
 
 		// Environment Settings
 		"module": "nodenext",
+		"moduleResolution": "nodenext",
 		"target": "esnext",
-		"types": ["node"],
 		"lib": ["esnext"],
 
 		// Stricter Typechecking Options

@@ -45,7 +45,7 @@ export function initSocket(server: HttpServer) {
 	});
 
 	// Use a middleware to authenticate the user
-	io.use((socket, next) => {
+	io.use((socket: Socket, next: (err?: Error) => void) => {
 		try {
 			// Get the token from the handshake
 			const token =
@@ -96,7 +96,7 @@ export function sendToUser(userId: string, event: string, data: unknown) {
 	io.to(`user:${userId}`).emit(event, data);
 }
 
-/** Notify both users in a 1-on-1 chat */
+/** Notify both users in a chat */
 export function notifyChatPartners(
 	userA: string,
 	userB: string,
