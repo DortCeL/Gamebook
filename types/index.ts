@@ -122,19 +122,13 @@ export interface IFriendEntry {
 // the status of a friendship between two users
 export type FriendshipStatus = "none" | "friends" | "sent" | "incoming";
 
-export interface IMessageStatusEntry {
-	user: string | IAuthor;
-	deliveredAt?: string;
-	readAt?: string;
-}
-
 export interface IMessage {
 	_id: string;
 	conversation: string;
 	sender: string | IAuthor;
 	content: string;
-	deliveredTo: IMessageStatusEntry[];
-	readBy: IMessageStatusEntry[];
+	deliveredAt?: string | null;
+	readAt?: string | null;
 	createdAt: string;
 	updatedAt: string;
 }

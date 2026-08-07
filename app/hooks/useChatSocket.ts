@@ -7,13 +7,13 @@ import { getToken } from "~/api/tokenHelpers";
 type MessageDeliveredPayload = {
 	conversationId: string;
 	messageId: string;
-	deliveredTo: IMessage["deliveredTo"];
+	deliveredAt: string;
 };
 
 type MessageReadPayload = {
 	conversationId: string;
 	messageId: string;
-	readBy: IMessage["readBy"];
+	readAt: string;
 };
 
 type MessageNewPayload = {
@@ -64,7 +64,7 @@ export function useChatSocket() {
 				(old = []) =>
 					old.map((message) =>
 						message._id === data.messageId
-							? { ...message, deliveredTo: data.deliveredTo }
+							? { ...message, deliveredAt: data.deliveredAt }
 							: message,
 					),
 			);
@@ -76,7 +76,7 @@ export function useChatSocket() {
 				(old = []) =>
 					old.map((message) =>
 						message._id === data.messageId
-							? { ...message, readBy: data.readBy }
+							? { ...message, readAt: data.readAt }
 							: message,
 					),
 			);

@@ -4,25 +4,9 @@ export function getUserId(user: string | IAuthor): string {
 	return typeof user === "string" ? user : user._id;
 }
 
-export function getMessageStatus(
-	message: IMessage,
-	currentUserId: string,
-	otherUserId: string,
-): string | null {
-	if (getUserId(message.sender) !== currentUserId) return null;
-
-	if (
-		message.readBy.some((entry) => getUserId(entry.user) === otherUserId)
-	) {
-		return "[seen]";
-	}
-
-	if (
-		message.deliveredTo.some((entry) => getUserId(entry.user) === otherUserId)
-	) {
-		return "[delivered]";
-	}
-
+export function getMessageStatus(message: IMessage): string | null {
+	if (message.readAt) return "[seen]";
+	if (message.deliveredAt) return "[delivered]";
 	return "[sent]";
 }
 

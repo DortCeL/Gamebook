@@ -7,6 +7,7 @@ import {
 } from "~/hooks/useChat";
 import {
 	getMessageStatus,
+	getUserId,
 	groupMessagesBySender,
 } from "~/utils/chatHelpers";
 import { timeAgo } from "~/utils/timeFormatter";
@@ -85,11 +86,10 @@ export default function ChatWindow({
 
 							<div className="space-y-1">
 								{group.messages.map((message) => {
-									const status = getMessageStatus(
-										message,
-										currentUserId,
-										otherUser._id,
-									);
+									const status =
+										getUserId(message.sender) === currentUserId
+											? getMessageStatus(message)
+											: null;
 
 									return (
 										<p

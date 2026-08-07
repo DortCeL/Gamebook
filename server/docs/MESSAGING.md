@@ -46,11 +46,11 @@ Client (Socket.io) ◄───────────────────�
 - `lastMessageAt` → used to sort chat list
 
 ### Message
-- `conversation` → which 1-on-1 chat it belongs to
+- `conversation` → which chat it belongs to
 - `sender` → who sent it
 - `content` → text only
-- `deliveredTo` → who received it
-- `readBy` → who read it
+- `deliveredAt` → when the recipient received it (null until delivered)
+- `readAt` → when the recipient read it (null until read)
 
 ---
 
@@ -107,15 +107,14 @@ All require header: `Authorization: Bearer <JWT token>`
 Save to DB → if other person is online mark delivered → Socket `message:new` to **you and the other person**.
 
 ### Message status (for your sent messages)
-1. `readBy` contains other user → **[seen]**
-2. else `deliveredTo` contains other user → **[delivered]**
+1. `readAt` is set → **[seen]**
+2. else `deliveredAt` is set → **[delivered]**
 3. else → **[sent]**
 
 ---
 
 ## 7. Important Rules
 
-- No group chats — conversations always have exactly 2 users
-- `ConversationService.getOtherUserId()` returns the one other person in the chat
-- `ConversationService.assertOneToOne()` throws if a conversation ever has ≠ 2 users
-- Socket uses `notifyChatPartners(userA, userB, ...)` instead of broadcasting to arbitrary lists
+- Conversations always have exactly 2 users (enforced by schema)
+- `ConversationService.getOtherUserId()` returns the other person in the chat
+- Socket uses `notifyChatPartners(userA, userB, ...)` to update both sides

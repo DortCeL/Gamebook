@@ -1,6 +1,6 @@
 import mongoose, { Document, Types } from "mongoose";
 
-/** 1-on-1 chat only — always exactly two users in `participants`. */
+/** 1-on-1 chat — exactly two users in `participants`. */
 export interface IConversation extends Document {
 	participants: [Types.ObjectId, Types.ObjectId];
 	lastMessage?: Types.ObjectId;

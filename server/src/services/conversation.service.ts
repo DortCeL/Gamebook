@@ -22,12 +22,6 @@ export class ConversationService {
 		return user.toString();
 	}
 
-	static assertOneToOne(conversation: IConversation) {
-		if (conversation.participants.length !== 2) {
-			throw new Error("Invalid conversation: only 1-on-1 chats are supported.");
-		}
-	}
-
 	static isInConversation(
 		conversation: IConversation,
 		userId: string,
@@ -41,7 +35,6 @@ export class ConversationService {
 		conversation: IConversation,
 		userId: string,
 	): string | null {
-		this.assertOneToOne(conversation);
 		const other = conversation.participants.find(
 			(participant) => this.resolveUserId(participant) !== userId,
 		);
@@ -49,10 +42,7 @@ export class ConversationService {
 	}
 
 	static async getUserConversations(userId: string): Promise<IConversation[]> {
-		return Conversation.find({
-			participants: userId,
-			$expr: { $eq: [{ $size: "$participants" }, 2] },
-		})
+		return Conversation.find({ participants: userId })
 			.populate("participants", userFields)
 			.populate({
 				path: "lastMessage",
@@ -76,7 +66,6 @@ export class ConversationService {
 			return null;
 		}
 
-		this.assertOneToOne(conversation);
 		return conversation;
 	}
 
