@@ -38,6 +38,9 @@ THE FIX ? ===> call login in the singup component so that after signup, login au
 
 
 
+# issue 3 : render e server deploy korar time e build error khacchilo : src/socket/socket.ts(3,37): error TS2307: Cannot find module 'socket.io' or its corresponding type declarations. 
+--> this happened because node_modules e socket.io khuje paynai. karon oita root e install hoy and 
+
 
 =========================================================================================================================================================================================
 
