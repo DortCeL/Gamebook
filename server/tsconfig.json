@@ -15,7 +15,8 @@
 		// "exactOptionalPropertyTypes": true,
 
 		// Recommended Options
-		// "strict": true,
+		"strict": true,
+		"esModuleInterop": true,
 		"skipLibCheck": true
 	}
 }
