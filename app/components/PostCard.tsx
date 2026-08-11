@@ -20,13 +20,13 @@ export default function PostCard({ post }: { post: Post }) {
 
 	// load comments when user opens the section
 	useEffect(() => {
-		if (!showComments) return;
+		// if (!showComments) return;
 		setLoadingComments(true);
 		commentApi
 			.getByPost(post._id)
 			.then((res) => setComments(res.data))
 			.finally(() => setLoadingComments(false));
-	}, [showComments, post._id]);
+	}, [post._id]);
 
 	async function handleDeletePost() {
 		if (!confirm("Delete this post?")) return;
@@ -96,6 +96,10 @@ export default function PostCard({ post }: { post: Post }) {
 					className="text-green-400 hover:underline"
 				>
 					{showComments ? "Hide comments" : "Comments"}
+
+					<div className="inline-block ml-2 text-gray-500 text-xs">
+						({comments.length} {comments.length === 1 ? "Comment" : "Comments"})
+					</div>
 				</button>
 				{isAuthor && (
 					<button
