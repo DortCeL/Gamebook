@@ -10,8 +10,9 @@ export default [
 		index("routes/home.tsx"),
 		route("/profile/:userId", "routes/profile.$userId.tsx"),
 	]),
-
+	
 	layout("routes/_protected.tsx", [
 		route("/chat/:friendId", "routes/chat.$friendId.tsx"),
+		route("/chat", "routes/chatPage.tsx"),
 	]),
 ] satisfies RouteConfig;

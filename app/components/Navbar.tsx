@@ -10,7 +10,7 @@ export default function Navbar() {
 	return (
 		<nav className="bg-gray-900 text-white px-4 lg:px-120 py-3 sticky top-0 z-100">
 
-            <div className="container mx-auto flex items-center justify-between">
+            <div className="container  mx-auto flex items-center justify-between">
 
                 <div className="flex items-center gap-4">
                     <Link to="/" className="font-bold text-lg text-green-400">
@@ -18,6 +18,9 @@ export default function Navbar() {
                     </Link>
                     <Link to="/" className="text-sm hover:text-green-300">
                         Home
+                    </Link>
+                    <Link to="/chat" className="text-sm hover:text-green-300">
+                        Chat
                     </Link>
                 </div>
 

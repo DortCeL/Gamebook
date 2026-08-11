@@ -21,14 +21,15 @@
 
 
 
-
-
-
-
 # issue 2: Signup from backend does not return a token. only login does. had to suffer because of this. so auto login = signup + login back to back.
 THE FIX ? ===> call login in the singup component so that after signup, login automatically is called
 
 
+
+*** setState in react is asynchronous and batched. 
+setIncoming(inc.data);  // it says "please update "incoming" on the next render"
+incoming.find(...);     // so this is still reading THIS render's "incoming"
+* faced this issue implementing incoming friend request er jonno friend status
 
 
 
@@ -49,6 +50,3 @@ THE FIX ? ===> call login in the singup component so that after signup, login au
 =========================================================================================================================================================================================
 
 1. Reset password pipeline
-2. check how pagination works in comment service (getComments, getReplies)
-
-
