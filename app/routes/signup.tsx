@@ -1,137 +1,73 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { useSignup } from "../hooks/useAuth";
+import { authApi } from "~/api";
+import { useAuth } from "~/context/AuthContext";
 
 export default function SignupPage() {
-	const {
-		mutate: signupAndLogin,
-		isPending: signingUp,
-		error: signupError,
-	} = useSignup();
 	const navigate = useNavigate();
+	const { login } = useAuth();
 
-	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+	const [form, setForm] = useState({
+		name: "",
+		gamertag: "",
+		email: "",
+		password: "",
+	});
+	const [error, setError] = useState("");
+	const [loading, setLoading] = useState(false);
+
+	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
-		const form = e.currentTarget;
-		const email = form.email.value;
-		const password = form.password.value;
-		const name = form.fullname.value;
-		const gamertag = form.gamertag.value;
-
-		signupAndLogin(
-			{ email, password, name, gamertag },
-			{
-				onSuccess: () => {
-					navigate("/", { replace: true });
-				},
-				onError: (err) => {
-					console.error("Signup or auto login failed:", err);
-				},
-			},
-		);
-	};
+		setLoading(true);
+		setError("");
+		try {
+			const res = await authApi.register(form);
+			login(res.data.token, res.data.user);
+			navigate("/", { replace: true });
+		} catch (err: any) {
+			setError(err.response?.data?.message || err.message);
+		} finally {
+			setLoading(false);
+		}
+	}
 
 	return (
-		<div className='min-h-screen flex items-center justify-center bg-gray-50 px-4'>
-			<div className='w-full max-w-md bg-white rounded-xl shadow-lg p-8 space-y-6'>
-				<div className='text-center'>
-					<h1 className='text-2xl font-bold text-gray-900'>Create Account</h1>
-					<p className='text-sm text-gray-500 mt-1'>Join the community</p>
-				</div>
+		<div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
+			<form
+				onSubmit={handleSubmit}
+				className="w-full max-w-sm bg-gray-800 border border-gray-700 rounded-lg p-6 space-y-3 text-gray-100"
+			>
+				<h1 className="text-xl font-bold text-green-400">Sign up</h1>
 
-				<form onSubmit={handleSubmit} className='space-y-4'>
-					<div>
-						<label
-							htmlFor='fullname'
-							className='block text-sm font-medium text-gray-700'
-						>
-							Full Name
-						</label>
-						<input
-							id='fullname'
-							name='fullname'
-							type='text'
-							required
-							className='mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition'
-							placeholder='John Doe'
-						/>
-					</div>
+				{(["name", "gamertag", "email", "password"] as const).map((field) => (
+					<input
+						key={field}
+						type={field === "password" ? "password" : field === "email" ? "email" : "text"}
+						value={form[field]}
+						onChange={(e) => setForm({ ...form, [field]: e.target.value })}
+						placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+						required
+						className="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm"
+					/>
+				))}
 
-					<div>
-						<label
-							htmlFor='gamertag'
-							className='block text-sm font-medium text-gray-700'
-						>
-							Gamertag
-						</label>
-						<input
-							id='gamertag'
-							name='gamertag'
-							type='text'
-							required
-							className='mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition'
-							placeholder='JohnnyGamer'
-						/>
-					</div>
+				{error && <p className="text-sm text-red-400">{error}</p>}
 
-					<div>
-						<label
-							htmlFor='email'
-							className='block text-sm font-medium text-gray-700'
-						>
-							Email
-						</label>
-						<input
-							id='email'
-							name='email'
-							type='email'
-							required
-							className='mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition'
-							placeholder='you@example.com'
-						/>
-					</div>
+				<button
+					type="submit"
+					disabled={loading}
+					className="w-full bg-green-600 py-2 rounded hover:bg-green-500 disabled:opacity-50"
+				>
+					{loading ? "..." : "Create account"}
+				</button>
 
-					<div>
-						<label
-							htmlFor='password'
-							className='block text-sm font-medium text-gray-700'
-						>
-							Password
-						</label>
-						<input
-							id='password'
-							name='password'
-							type='password'
-							required
-							className='mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition'
-							placeholder='••••••••'
-						/>
-					</div>
-
-					{signupError && (
-						<div className='bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm'>
-							{(signupError as Error).message}
-						</div>
-					)}
-
-					<button
-						type='submit'
-						disabled={signingUp}
-						className='w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-60 disabled:cursor-not-allowed'
-					>
-						{signingUp ? "Signing up..." : "Sign Up"}
-					</button>
-				</form>
-
-				<p className='text-center text-sm text-gray-500'>
-					Already have an account?{" "}
-					<Link
-						to='/login'
-						className='text-blue-600 hover:underline font-medium'
-					>
-						Sign in
+				<p className="text-sm text-gray-400 text-center">
+					Have an account?{" "}
+					<Link to="/login" className="text-green-400 hover:underline">
+						Log in
 					</Link>
 				</p>
-			</div>
+			</form>
 		</div>
 	);
 }

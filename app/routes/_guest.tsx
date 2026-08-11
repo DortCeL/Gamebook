@@ -1,12 +1,14 @@
-import { Outlet } from "react-router";
-import { requireGuest } from "~/auth/guards";
+import { Outlet, redirect } from "react-router";
+import { getToken } from "~/api/client";
 
 export async function clientLoader() {
-	requireGuest();
+	if (getToken()) {
+		throw redirect("/");
+	}
 	return null;
 }
 
-clientLoader.hydrate = true as const; // loader runs in client side but this ensures it also runs client-side
+clientLoader.hydrate = true as const;
 
 export default function GuestLayout() {
 	return <Outlet />;

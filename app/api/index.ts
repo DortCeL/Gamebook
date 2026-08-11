@@ -1,221 +1,89 @@
 import type {
-	LoginResponseData,
-	LoginPayload,
-	SignupPayload,
-	IUpdateProfile,
-	ApiResponse,
-	ApiListResponse,
-	SignupResponseData,
-	IProfile,
-	IPost,
-	IComment,
-	CreatePostPayload,
-	CreateCommentPayload,
-	IAuthor,
-	IFriendship,
-	IFriendEntry,
-	IMessage,
-	IConversation,
+	ChatMessage,
+	Comment,
+	FriendRequest,
+	Post,
+	ProfileData,
+	User,
 } from "../../types";
 import { api } from "./client";
-import { clearToken } from "./tokenHelpers";
 
-// --- Auth API calls ---
 export const authApi = {
-	async login(payload: LoginPayload) {
-		return api
-			.post<ApiResponse<LoginResponseData>>("/auth/login", payload)
-			.then((res) => res.data.data as LoginResponseData);
+	register(data: {
+		name: string;
+		gamertag: string;
+		email: string;
+		password: string;
+	}) {
+		return api.post<{ token: string; user: User }>("/auth/register", data);
 	},
-	async signup(payload: SignupPayload) {
-		return api
-			.post<ApiResponse<SignupResponseData>>("/auth/register", payload)
-			.then((res) => res.data.data as SignupResponseData);
-	},
-
-	logout: () => {
-		clearToken();
-	},
-};
-
-// --- Profile API calls ---
-export const profileApi = {
-	async getProfile() {
-		const response = await api.get<ApiResponse<IProfile>>("/users/me");
-		return response.data.data as IProfile;
-	},
-
-	async getById(userId: string) {
-		const response = await api.get<ApiResponse<IProfile>>(`/users/${userId}`);
-		return response.data.data as IProfile;
-	},
-
-	async updateProfile(targetId: string, payload: IUpdateProfile) {
-		const response = await api.patch<ApiResponse<IProfile>>(
-			`/users/${targetId}`,
-			payload,
-		);
-		return response.data.data as IProfile;
-	},
-};
-
-// --- Post API calls ---
-export const postApi = {
-	async getAll(page = 1, limit = 10, authorId?: string) {
-		const response = await api.get<ApiListResponse<IPost>>("/post", {
-			params: { page, limit, ...(authorId ? { authorId } : {}) },
-		});
-		return response.data.data;
-	},
-
-	async getMyPosts(page = 1, limit = 10) {
-		const response = await api.get<ApiListResponse<IPost>>("/post/myposts", {
-			params: { page, limit },
-		});
-		return response.data.data;
-	},
-
-	async getById(id: string) {
-		const response = await api.get<ApiResponse<IPost>>(`/post/${id}`);
-		return response.data.data as IPost;
-	},
-
-	async create(payload: CreatePostPayload) {
-		const response = await api.post<ApiResponse<IPost>>("/post", payload);
-		return response.data.data as IPost;
-	},
-
-	async update(id: string, payload: Partial<CreatePostPayload>) {
-		const response = await api.patch<ApiResponse<IPost>>(
-			`/post/${id}`,
-			payload,
-		);
-		return response.data.data as IPost;
-	},
-
-	async delete(id: string) {
-		await api.delete(`/post/${id}`);
-	},
-};
-
-// --- Comment API calls ---
-export const commentApi = {
-	async getByPost(postId: string, page = 1, limit = 20) {
-		const response = await api.get<ApiListResponse<IComment>>(
-			`/comments/post/${postId}`,
-			{ params: { page, limit } },
-		);
-		return response.data.data;
-	},
-
-	async getReplies(commentId: string, page = 1, limit = 20) {
-		const response = await api.get<ApiListResponse<IComment>>(
-			`/comments/${commentId}/replies`,
-			{ params: { page, limit } },
-		);
-		return response.data.data;
-	},
-
-	async create(payload: CreateCommentPayload) {
-		const response = await api.post<ApiResponse<IComment>>(
-			"/comments",
-			payload,
-		);
-		return response.data.data as IComment;
-	},
-
-	async delete(id: string) {
-		await api.delete(`/comments/${id}`);
+	login(data: { email: string; password: string }) {
+		return api.post<{ token: string; user: User }>("/auth/login", data);
 	},
 };
 
 export const userApi = {
-	async search(query: string) {
-		const response = await api.get<ApiListResponse<IAuthor>>("/users/search", {
-			params: { q: query },
-		});
-		return response.data.data;
+	me() {
+		return api.get<User>("/users/me");
+	},
+	getProfile(id: string) {
+		return api.get<ProfileData>(`/users/${id}`);
+	},
+	update(id: string, data: { name?: string; gamertag?: string; avatar?: string }) {
+		return api.put<User>(`/users/${id}`, data);
 	},
 };
 
-export const friendsApi = {
-	async list() {
-		const response = await api.get<ApiListResponse<IFriendEntry>>("/friends");
-		return response.data.data;
-	},
-
-	async getIncomingRequests() {
-		const response = await api.get<ApiListResponse<IFriendship>>(
-			"/friends/requests",
+export const postApi = {
+	getFeed(page: number) {
+		return api.get<{ posts: Post[]; page: number; hasMore: boolean }>(
+			"/posts",
+			{ params: { page } },
 		);
-		return response.data.data;
 	},
-
-	async getSentRequests() {
-		const response = await api.get<ApiListResponse<IFriendship>>(
-			"/friends/requests/sent",
-		);
-		return response.data.data;
+	getByUser(userId: string) {
+		return api.get<Post[]>(`/posts/user/${userId}`);
 	},
-
-	async sendRequest(userId: string) {
-		const response = await api.post<ApiResponse<IFriendship>>(
-			`/friends/request/${userId}`,
-		);
-		return response.data.data as IFriendship;
+	create(data: { text: string; visibility?: string }) {
+		return api.post<Post>("/posts", data);
 	},
-
-	async acceptRequest(requestId: string) {
-		const response = await api.patch<ApiResponse<IFriendship>>(
-			`/friends/accept/${requestId}`,
-		);
-		return response.data.data as IFriendship;
+	update(id: string, data: { text?: string; visibility?: string }) {
+		return api.put<Post>(`/posts/${id}`, data);
 	},
-
-	async declineRequest(requestId: string) {
-		const response = await api.patch<ApiResponse<IFriendship>>(
-			`/friends/decline/${requestId}`,
-		);
-		return response.data.data as IFriendship;
-	},
-
-	async remove(friendshipId: string) {
-		await api.delete(`/friends/${friendshipId}`);
+	remove(id: string) {
+		return api.delete(`/posts/${id}`);
 	},
 };
 
-export const conversationApi = {
-	async list() {
-		const response = await api.get<ApiListResponse<IConversation>>(
-			"/conversations",
-		);
-		return response.data.data;
+export const commentApi = {
+	getByPost(postId: string) {
+		return api.get<Comment[]>(`/posts/${postId}/comments`);
 	},
-
-	async create(recipientId: string) {
-		const response = await api.post<ApiResponse<IConversation>>(
-			"/conversations",
-			{ recipientId },
-		);
-		return response.data.data as IConversation;
+	create(data: { postId: string; text: string; parentId?: string }) {
+		return api.post<Comment>("/comments", data);
 	},
-
-	async getMessages(conversationId: string) {
-		const response = await api.get<ApiListResponse<IMessage>>(
-			`/conversations/${conversationId}/messages`,
-		);
-		return response.data.data;
+	remove(id: string) {
+		return api.delete(`/comments/${id}`);
 	},
+};
 
-	async sendMessage(conversationId: string, content: string) {
-		const response = await api.post<ApiResponse<IMessage>>(
-			`/conversations/${conversationId}/messages`,
-			{ content },
-		);
-		return response.data.data as IMessage;
+export const friendRequestApi = {
+	send(userId: string) {
+		return api.post<FriendRequest>("/friend-requests", { userId });
 	},
+	incoming() {
+		return api.get<FriendRequest[]>("/friend-requests/incoming");
+	},
+	outgoing() {
+		return api.get<FriendRequest[]>("/friend-requests/outgoing");
+	},
+	accept(id: string) {
+		return api.put(`/friend-requests/${id}/accept`);
+	},
+};
 
-	async markRead(conversationId: string) {
-		await api.patch(`/conversations/${conversationId}/read`);
+export const messageApi = {
+	getWithFriend(friendId: string) {
+		return api.get<ChatMessage[]>(`/messages/${friendId}`);
 	},
 };

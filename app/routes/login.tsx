@@ -1,106 +1,76 @@
+import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { useLogin } from "../hooks/useAuth";
+import { authApi } from "~/api";
+import { useAuth } from "~/context/AuthContext";
 
 export default function LoginPage() {
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const redirectTo = searchParams.get("redirect") || "/";
+	const { login } = useAuth();
 
-	const {
-		mutate: login,
-		isPending: isLoggingIn,
-		error: loginError,
-	} = useLogin();
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [error, setError] = useState("");
+	const [loading, setLoading] = useState(false);
 
-	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
-		const formData = new FormData(e.currentTarget);
-		const email = formData.get("email") as string;
-		const password = formData.get("password") as string;
-
-		login(
-			{ email, password },
-			{
-				onSuccess: () => {
-					navigate(redirectTo, { replace: true });
-				},
-				onError: (err) => {
-					console.error("Login error:", err);
-				},
-			},
-		);
-	};
+		setLoading(true);
+		setError("");
+		try {
+			const res = await authApi.login({ email, password });
+			login(res.data.token, res.data.user);
+			navigate(redirectTo, { replace: true });
+		} catch (err: any) {
+			setError(err.response?.data?.message || err.message);
+		} finally {
+			setLoading(false);
+		}
+	}
 
 	return (
-		<div className='min-h-screen flex items-center justify-center bg-gray-50 px-4'>
-			<div className='w-full max-w-md bg-white rounded-xl shadow-lg p-8 space-y-6'>
-				<div className='text-center'>
-					<h1 className='text-2xl font-bold text-gray-900'>Welcome Back</h1>
-					<p className='text-sm text-gray-500 mt-1'>Sign in to your account</p>
-				</div>
+		<div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
+			<form
+				onSubmit={handleSubmit}
+				className="w-full max-w-sm bg-gray-800 border border-gray-700 rounded-lg p-6 space-y-4 text-gray-100"
+			>
+				<h1 className="text-xl font-bold text-green-400">Login</h1>
 
-				<form onSubmit={handleSubmit} className='space-y-4'>
-					<div>
-						<label
-							htmlFor='email'
-							className='block text-sm font-medium text-gray-700'
-						>
-							Email
-						</label>
-						<input
-							id='email'
-							name='email'
-							type='email'
-							required
-							className='mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition'
-							placeholder='you@example.com'
-						/>
-					</div>
+				<input
+					type="email"
+					value={email}
+					onChange={(e) => setEmail(e.target.value)}
+					placeholder="Email"
+					required
+					className="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm"
+				/>
+				<input
+					type="password"
+					value={password}
+					onChange={(e) => setPassword(e.target.value)}
+					placeholder="Password"
+					required
+					className="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm"
+				/>
 
-					<div>
-						<label
-							htmlFor='password'
-							className='block text-sm font-medium text-gray-700'
-						>
-							Password
-						</label>
-						<input
-							id='password'
-							name='password'
-							type='password'
-							required
-							className='mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition'
-							placeholder='••••••••'
-						/>
-					</div>
+				{error && <p className="text-sm text-red-400">{error}</p>}
 
-					{loginError && (
-						<div className='bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm'>
-							{(loginError as Error).message}
-						</div>
-					)}
+				<button
+					type="submit"
+					disabled={loading}
+					className="w-full bg-green-600 py-2 rounded hover:bg-green-500 disabled:opacity-50"
+				>
+					{loading ? "..." : "Sign In"}
+				</button>
 
-					<button
-						type='submit'
-						disabled={isLoggingIn}
-						className='w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-60 disabled:cursor-not-allowed'
-					>
-						{isLoggingIn ? "Signing in..." : "Sign In"}
-					</button>
-				</form>
-
-				<p className='text-center text-sm text-gray-500'>
-					Don't have an account?{" "}
-					<Link
-						to='/signup'
-						className='text-blue-600 hover:underline font-medium'
-					>
+				<p className="text-sm text-gray-400 text-center">
+					No account?{" "}
+					<Link to="/signup" className="text-green-400 hover:underline">
 						Sign up
 					</Link>
 				</p>
-			</div>
+			</form>
 		</div>
 	);
-
-	
 }

@@ -1,12 +1,15 @@
-import { Outlet } from "react-router";
-import { requireAuth } from "~/auth/guards";
+import { Outlet, redirect } from "react-router";
+import { getToken } from "~/api/client";
 
 export async function clientLoader({ request }: { request: Request }) {
-	requireAuth(request);
+	if (!getToken()) {
+		const url = new URL(request.url);
+		throw redirect(`/login?redirect=${encodeURIComponent(url.pathname)}`);
+	}
 	return null;
 }
 
-clientLoader.hydrate = true as const; // loader runs in client side but this ensures it also runs client-side
+clientLoader.hydrate = true as const;
 
 export default function ProtectedLayout() {
 	return <Outlet />;
