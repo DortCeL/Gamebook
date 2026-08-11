@@ -1,143 +1,49 @@
-export interface IUser {
+// shared types — keep it simple
+
+export interface User {
 	_id: string;
 	name: string;
 	gamertag: string;
-	email: string;
-	avatarUrl: string;
-	bio: string;
-	role: "user" | "admin";
+	email?: string;
+	avatar?: string;
+	friends?: User[];
 }
 
-export interface IUpdateProfile {
-	name?: string;
-	gamertag?: string;
-	bio?: string;
-	avatarUrl?: string;
-}
-
-export interface SignupPayload {
-	name: string;
-	gamertag: string;
-	email: string;
-	password: string;
-}
-
-export interface LoginPayload {
-	email: string;
-	password: string;
-}
-
-export interface ApiResponse<T> {
-	success: boolean;
-	message?: string;
-	data: T | T[];
-}
-
-export interface LoginResponseData {
-	token: string;
-	user: { id: string; name: string; email: string; role: string };
-}
-
-export interface SignupResponseData {
-	token: string;
-	user: { id: string; name: string; email: string; gamertag: string };
-}
-
-export interface IProfile {
-	user: IUser;
-	stats: {
-		totalPosts: number;
-	};
-}
-
-export interface IAuthor {
+export interface Post {
 	_id: string;
-	name?: string;
-	gamertag?: string;
-	avatarUrl?: string;
-}
-
-export interface IPost {
-	_id: string;
-	commentCount: number;
-	author: string | IAuthor;
-	type: "screenshot" | "review" | "text";
-	game?: string;
-	content?: string;
-	images?: string[];
+	author: User;
+	text: string;
 	visibility: "public" | "friends";
 	createdAt: string;
 	updatedAt: string;
 }
 
-export interface IComment {
+export interface Comment {
 	_id: string;
 	post: string;
-	author: string | IAuthor;
-	content: string;
-	parentComment?: string | null;
+	author: User;
+	text: string;
+	parent: string | null;
 	createdAt: string;
-	updatedAt: string;
-	replyCount: number;
 }
 
-export interface CreatePostPayload {
-	type?: IPost["type"];
-	game?: string;
-	content?: string;
-	images?: string[];
-	visibility?: IPost["visibility"];
-}
-
-export interface CreateCommentPayload {
-	postId: string;
-	content: string;
-	parentCommentId?: string;
-}
-
-export interface ApiListResponse<T> {
-	success: boolean;
-	count?: number;
-	message?: string;
-	data: T[];
-}
-
-// a friendship between two users
-export interface IFriendship {
+export interface FriendRequest {
 	_id: string;
-	requester: IAuthor;
-	recipient: IAuthor;
-	status: "pending" | "accepted" | "declined";
+	from: User;
+	to: User;
+	status: "pending" | "accepted";
 	createdAt: string;
-	updatedAt: string;
 }
 
-// a list of friends for the current user
-export interface IFriendEntry {
+export interface ChatMessage {
 	_id: string;
-	friend: IAuthor;
-	since: string;
-}
-
-// the status of a friendship between two users
-export type FriendshipStatus = "none" | "friends" | "sent" | "incoming";
-
-export interface IMessage {
-	_id: string;
-	conversation: string;
-	sender: string | IAuthor;
-	content: string;
-	deliveredAt?: string | null;
-	readAt?: string | null;
+	sender: User;
+	receiver: string;
+	text: string;
 	createdAt: string;
-	updatedAt: string;
 }
 
-export interface IConversation {
-	_id: string;
-	participants: IAuthor[];
-	lastMessage?: IMessage | null;
-	lastMessageAt?: string;
-	createdAt?: string;
-	updatedAt?: string;
+export interface ProfileData {
+	user: User;
+	postCount: number;
 }
