@@ -1,43 +1,82 @@
-import { Request, Response } from "express";
-import { AuthService } from "../services/auth.service.js";
-import { IUser } from "../models/User.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
+
+const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
 
 export class AuthController {
-	static async register(req: Request, res: Response) {
+	static async register(req: any, res: any) {
 		try {
-			const { name, email, password, gamertag } = req.body;
+			const { name, gamertag, email, password } = req.body;
 
-			const user = await AuthService.register(name, email, password, gamertag);
+			if (!name || !gamertag || !email || !password) {
+				return res.status(400).json({ message: "All fields are required." });
+			}
+
+			const exists = await User.findOne({
+				$or: [{ email }, { gamertag }],
+			});
+			if (exists) {
+				return res.status(400).json({ message: "Email or gamertag taken." });
+			}
+
+			const hashed = await bcrypt.hash(password, 10);
+			const user = await User.create({
+				name,
+				gamertag,
+				email,
+				password: hashed,
+			});
+
+			const token = jwt.sign({ _id: user._id.toString() }, JWT_SECRET, {
+				expiresIn: "7d",
+			});
 
 			return res.status(201).json({
-				success: true,
-				message: "User registered successfully",
-				data: user,
+				token,
+				user: {
+					_id: user._id,
+					name: user.name,
+					gamertag: user.gamertag,
+					email: user.email,
+					avatar: user.avatar,
+				},
 			});
-		} catch (error: any) {
-			return res.status(400).json({
-				success: false,
-				message: error.message,
-			});
+		} catch (err: any) {
+			return res.status(500).json({ message: err.message });
 		}
 	}
 
-	static async login(req: Request, res: Response) {
+	static async login(req: any, res: any) {
 		try {
 			const { email, password } = req.body;
 
-			const data = await AuthService.login(email, password);
+			const user = await User.findOne({ email }).select("+password");
+			if (!user) {
+				return res.status(400).json({ message: "Invalid email or password." });
+			}
+
+			const ok = await bcrypt.compare(password, user.password);
+			if (!ok) {
+				return res.status(400).json({ message: "Invalid email or password." });
+			}
+
+			const token = jwt.sign({ _id: user._id.toString() }, JWT_SECRET, {
+				expiresIn: "7d",
+			});
 
 			return res.json({
-				success: true,
-				message: "Login successful",
-				data,
+				token,
+				user: {
+					_id: user._id,
+					name: user.name,
+					gamertag: user.gamertag,
+					email: user.email,
+					avatar: user.avatar,
+				},
 			});
-		} catch (error: any) {
-			return res.status(401).json({
-				success: false,
-				message: error.message,
-			});
+		} catch (err: any) {
+			return res.status(500).json({ message: err.message });
 		}
 	}
 }

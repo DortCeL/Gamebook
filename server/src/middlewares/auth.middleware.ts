@@ -1,45 +1,35 @@
-import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { CustomJwtPayload } from "../types/express.d.js"; // Update path as needed
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-fallback-secret-key";
+const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
 
-export const authenticate = (
-	req: Request,
-	res: Response,
-	next: NextFunction,
-) => {
+// must be logged in
+export function auth(req: any, res: any, next: any) {
 	try {
-		const authHeader = req.headers.authorization;
-
-		// Check if Authorization header exists and follows 'Bearer <token>' format
-		if (!authHeader || !authHeader.startsWith("Bearer ")) {
-			return res.status(401).json({
-				success: false,
-				message: "Access denied. No token provided.",
-			});
+		const header = req.headers.authorization;
+		if (!header?.startsWith("Bearer ")) {
+			return res.status(401).json({ message: "Login required." });
 		}
 
-		// Extract token string
-		const token = authHeader.split(" ")[1];
-
-		// Verify token integrity and expiration
-		const decoded = jwt.verify(token as string, JWT_SECRET) as CustomJwtPayload;
-
-		// Attach decoded payload to request object (normalize _id to string)
-		req.user = {
-			...decoded,
-			_id: String(decoded._id),
-		};
-
-		//*** DEBUGGING  SECTION DELETE LATER !!!
-		// return res.status(420).json({ decodedToken: decoded, user: req.user });
-
-		return next();
-	} catch (error: any) {
-		return res.status(401).json({
-			success: false,
-			message: "Invalid or expired token.",
-		});
+		const token = header.split(" ")[1];
+		const decoded = jwt.verify(token, JWT_SECRET) as { _id: string };
+		req.user = { _id: decoded._id };
+		next();
+	} catch {
+		return res.status(401).json({ message: "Invalid or expired token." });
 	}
-};
+}
+
+// token optional... for public feed that shows extra posts if logged in
+export function optionalAuth(req: any, res: any, next: any) {
+	try {
+		const header = req.headers.authorization;
+		if (header?.startsWith("Bearer ")) {
+			const token = header.split(" ")[1];
+			const decoded = jwt.verify(token, JWT_SECRET) as { _id: string };
+			req.user = { _id: decoded._id };
+		}
+	} catch {
+		// ignore bad token, treat as guest
+	}
+	next();
+}

@@ -1,74 +1,25 @@
-import { Schema, model, Document } from "mongoose";
-import { Post } from "./Post.js";
+import { Schema, model, Document, Types } from "mongoose";
 
 export interface IUser extends Document {
 	name: string;
 	gamertag: string;
-	avatarUrl?: string;
 	email: string;
 	password: string;
-	role: "user" | "admin";
+	avatar?: string;
+	friends: Types.ObjectId[];
 	createdAt: Date;
-	updatedAt: Date;
-	bio: string;
 }
 
 const userSchema = new Schema<IUser>(
 	{
-		name: {
-			type: String,
-			required: true,
-			trim: true,
-		},
-
-		email: {
-			type: String,
-			required: true,
-			unique: true,
-			lowercase: true,
-			trim: true,
-		},
-		gamertag: {
-			type: String,
-			required: true,
-			unique: true,
-		},
-
-		avatarUrl: {
-			type: String,
-		},
-
-		bio: {
-			type: String,
-		},
-
-		password: {
-			type: String,
-			required: true,
-			minlength: 6,
-			select: false,
-		},
-
-		role: {
-			type: String,
-			enum: ["user", "admin"],
-			default: "user",
-		},
+		name: { type: String, required: true, trim: true },
+		gamertag: { type: String, required: true, unique: true, trim: true },
+		email: { type: String, required: true, unique: true, lowercase: true },
+		password: { type: String, required: true, select: false },
+		avatar: { type: String, default: "" },
+		friends: [{ type: Schema.Types.ObjectId, ref: "User" }],
 	},
-	{
-		timestamps: true,
-	},
-);
-
-// runs when i do: const user = await User.findById(id); await user.deleteOne();
-userSchema.pre(
-	"deleteOne",
-	{ document: true, query: false },
-	async function () {
-		const userId = this._id;
-
-		await Post.deleteMany({ author: userId });
-	},
+	{ timestamps: { createdAt: true, updatedAt: false } },
 );
 
 export default model<IUser>("User", userSchema);
