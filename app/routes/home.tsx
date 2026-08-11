@@ -63,7 +63,7 @@ export default function Home() {
 			<main className="max-w-2xl mx-auto px-4 py-6 space-y-4">
 				<h1 className="text-xl font-bold text-green-400">Feed</h1>
 
-				{/* create post — only if logged in */}
+				{/* create post... only if logged in */}
 				{user ? (
 					<form
 						onSubmit={handleNewPost}
@@ -105,7 +105,7 @@ export default function Home() {
 					</p>
 				)}
 
-				{loading && <p className="text-gray-500">Loading feed...</p>}
+				{loading && <p className="text-gray-500">Loading feed... This project is hosted on free domain. System may take 20-30 seconds to boot up.</p>}
 
 				{posts.map((post) => (
 					<PostCard key={post._id} post={post} />
