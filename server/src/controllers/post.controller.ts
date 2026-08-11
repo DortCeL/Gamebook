@@ -1,135 +1,138 @@
-import { Request, Response } from "express";
-import { PostService } from "../services/post.service.js";
+import { Post } from "../models/Post.js";
+import { Comment } from "../models/Comment.js";
+import User from "../models/User.js";
 
-// Note: Replace Request with your custom Authenticated Request type if req.user exists
 export class PostController {
-	static async create(req: Request, res: Response) {
+	// feed — page 1, 10 per page. public + friends posts if logged in
+	static async getFeed(req: any, res: any) {
 		try {
-			// Assuming req.user._id is populated via auth middleware
-			const authorId = req.user?._id;
-			// return res.status(420).json({ author: req.user });
-
-			// 1. Guard against unauthenticated requests or invalid tokens
-			if (!authorId) {
-				return res.status(401).json({
-					success: false,
-					message:
-						"Unauthorized: Valid authentication required to create a post.",
-				});
-			}
-
-			const postData = { ...req.body, author: authorId };
-			const post = await PostService.createPost(postData);
-
-			return res.status(201).json({ success: true, data: post });
-		} catch (error: any) {
-			return res.status(400).json({ success: false, message: error.message });
-		}
-	}
-
-	static async getMyPosts(req: Request, res: Response) {
-		try {
-			const authorId = req.user?._id;
-
-			// Guard against unauthenticated requests
-			if (!authorId) {
-				return res.status(401).json({
-					success: false,
-					message: "Unauthorized: Authentication required.",
-				});
-			}
-
 			const page = parseInt(req.query.page as string) || 1;
-			const limit = parseInt(req.query.limit as string) || 10;
+			const limit = 10;
+			const skip = (page - 1) * limit;
 
-			const posts = await PostService.getPostsByAuthor(authorId, page, limit);
+			let filter: any = { visibility: "public" };
 
-			return res.status(200).json({
-				success: true,
-				count: posts.length,
-				data: posts,
+			// if logged in, also show friends-only posts from friends
+			if (req.user?._id) {
+				const me = await User.findById(req.user._id).select("friends");
+				const friendIds = me?.friends || [];
+
+				filter = {
+					$or: [
+						{ visibility: "public" },
+						{ visibility: "friends", author: { $in: friendIds } },
+						{ author: req.user._id },
+					],
+				};
+			}
+
+			const posts = await Post.find(filter)
+				.populate("author", "name gamertag avatar")
+				.sort({ createdAt: -1 })
+				.skip(skip)
+				.limit(limit);
+
+			const total = await Post.countDocuments(filter);
+
+			return res.json({
+				posts,
+				page,
+				hasMore: skip + posts.length < total,
 			});
-		} catch (error: any) {
-			return res.status(500).json({ success: false, message: error.message });
+		} catch (err: any) {
+			return res.status(500).json({ message: err.message });
 		}
 	}
 
-	static async getAll(req: Request, res: Response) {
+	// posts by one user (for profile page)
+	static async getByUser(req: any, res: any) {
 		try {
-			const page = parseInt(req.query.page as string) || 1;
-			const limit = parseInt(req.query.limit as string) || 10;
-			const authorId = req.query.authorId as string;
+			const userId = req.params.userId;
+			const viewerId = req.user?._id;
 
-			const posts = await PostService.getPosts(page, limit, authorId);
-			return res
-				.status(200)
-				.json({ success: true, count: posts.length, data: posts });
-		} catch (error: any) {
-			return res.status(500).json({ success: false, message: error.message });
+			let filter: any = { author: userId, visibility: "public" };
+
+			if (viewerId) {
+				const me = await User.findById(viewerId).select("friends");
+				const isFriend = me?.friends.some(
+					(id) => id.toString() === userId,
+				);
+				const isSelf = viewerId === userId;
+
+				if (isSelf || isFriend) {
+					filter = { author: userId };
+				}
+			}
+
+			const posts = await Post.find(filter)
+				.populate("author", "name gamertag avatar")
+				.sort({ createdAt: -1 });
+
+			return res.json(posts);
+		} catch (err: any) {
+			return res.status(500).json({ message: err.message });
 		}
 	}
 
-	static async getById(req: Request, res: Response) {
+	static async create(req: any, res: any) {
 		try {
-			const { id } = req.params;
+			const { text, visibility } = req.body;
+			if (!text?.trim()) {
+				return res.status(400).json({ message: "Post text is required." });
+			}
 
-			const post = await PostService.getPostById(id as string);
+			const post = await Post.create({
+				author: req.user._id,
+				text: text.trim(),
+				visibility: visibility || "public",
+			});
 
+			await post.populate("author", "name gamertag avatar");
+			return res.status(201).json(post);
+		} catch (err: any) {
+			return res.status(500).json({ message: err.message });
+		}
+	}
+
+	static async update(req: any, res: any) {
+		try {
+			const post = await Post.findById(req.params.id);
 			if (!post) {
-				return res
-					.status(404)
-					.json({ success: false, message: "Post not found" });
+				return res.status(404).json({ message: "Post not found." });
+			}
+			if (post.author.toString() !== req.user._id) {
+				return res.status(403).json({ message: "Not your post." });
 			}
 
-			return res.status(200).json({ success: true, data: post });
-		} catch (error: any) {
-			return res.status(500).json({ success: false, message: error.message });
+			if (req.body.text) post.text = req.body.text.trim();
+			if (req.body.visibility) post.visibility = req.body.visibility;
+
+			await post.save();
+			await post.populate("author", "name gamertag avatar");
+			return res.json(post);
+		} catch (err: any) {
+			return res.status(500).json({ message: err.message });
 		}
 	}
 
-	static async update(req: Request, res: Response) {
+	static async remove(req: any, res: any) {
 		try {
-			const { id } = req.params;
-			const authorId = (req as any).user?._id;
-
-			const updatedPost = await PostService.updatePost(
-				id as string,
-				authorId,
-				req.body,
-			);
-
-			if (!updatedPost) {
-				return res.status(404).json({
-					success: false,
-					message: "Post not found or unauthorized to edit",
-				});
+			const postId = req.params.id;
+			const post = await Post.findById(postId);
+			if (!post) {
+				return res.status(404).json({ message: "Post not found." });
+			}
+			if (post.author.toString() !== req.user._id) {
+				return res.status(403).json({ message: "Not your post." });
 			}
 
-			return res.status(200).json({ success: true, data: updatedPost });
-		} catch (error: any) {
-			return res.status(400).json({ success: false, message: error.message });
-		}
-	}
+			// cascade: delete all comments on this post
+			await Comment.deleteMany({ post: postId });
+			await Post.findByIdAndDelete(postId);
 
-	static async delete(req: Request, res: Response) {
-		try {
-			const { id } = req.params;
-			const authorId = (req as any).user?._id;
-
-			const deletedPost = await PostService.deletePost(id as string, authorId);
-
-			if (!deletedPost) {
-				return res.status(404).json({
-					success: false,
-					message: "Post not found or unauthorized to delete",
-				});
-			}
-
-			return res
-				.status(200)
-				.json({ success: true, message: "Post deleted successfully" });
-		} catch (error: any) {
-			return res.status(500).json({ success: false, message: error.message });
+			return res.json({ message: "Post deleted." });
+		} catch (err: any) {
+			return res.status(500).json({ message: err.message });
 		}
 	}
 }

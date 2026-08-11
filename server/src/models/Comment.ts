@@ -3,45 +3,20 @@ import { Schema, model, Document, Types } from "mongoose";
 export interface IComment extends Document {
 	post: Types.ObjectId;
 	author: Types.ObjectId;
-	content: string;
-	parentComment?: Types.ObjectId; // Null for top-level comments, populated if it's a reply
+	text: string;
+	parent: Types.ObjectId | null;
 	createdAt: Date;
 	updatedAt: Date;
-	replyCount: number;
 }
 
 const commentSchema = new Schema<IComment>(
 	{
-		post: {
-			type: Schema.Types.ObjectId,
-			ref: "Post",
-			required: true,
-			index: true, // Speeds up fetching comments for a specific post
-		},
-		author: {
-			type: Schema.Types.ObjectId,
-			ref: "User",
-			required: true,
-		},
-		content: {
-			type: String,
-			required: true,
-			trim: true,
-		},
-		parentComment: {
-			type: Schema.Types.ObjectId,
-			ref: "Comment",
-			default: null,
-			index: true, // Speeds up fetching replies for a specific comment
-		},
-		replyCount: {
-			type: Number,
-			default: 0
-		}
+		post: { type: Schema.Types.ObjectId, ref: "Post", required: true },
+		author: { type: Schema.Types.ObjectId, ref: "User", required: true },
+		text: { type: String, required: true, trim: true },
+		parent: { type: Schema.Types.ObjectId, ref: "Comment", default: null },
 	},
-	{
-		timestamps: true,
-	},
+	{ timestamps: true },
 );
 
 export const Comment = model<IComment>("Comment", commentSchema);

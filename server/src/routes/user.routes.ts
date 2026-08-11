@@ -1,14 +1,11 @@
 import { Router } from "express";
 import { UserController } from "../controllers/user.controller.js";
-import { authenticate } from "../middlewares/auth.middleware.js"; // Update path as needed
+import { auth } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.get("/me", authenticate, UserController.getProfile);
-router.get("/search", authenticate, UserController.searchUsers);
-router.get("/", authenticate, UserController.getAllUsers);
-router.get("/:id", authenticate, UserController.getUserById);
-router.delete("/:id", authenticate, UserController.deleteAccount);
-router.patch("/:id", authenticate, UserController.updateProfile);
+router.get("/me", auth, UserController.me);
+router.get("/:id", UserController.getById);
+router.put("/:id", auth, UserController.update);
 
 export default router;

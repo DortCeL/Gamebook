@@ -1,112 +1,86 @@
-import { Request, Response } from "express";
-import { CommentService } from "../services/comment.service.js";
+import { Comment } from "../models/Comment.js";
+import { Post } from "../models/Post.js";
 
 export class CommentController {
-	static async create(req: Request, res: Response) {
+	// all comments + replies for a post
+	static async getByPost(req: any, res: any) {
 		try {
-			const authorId = req.user?._id;
-			if (!authorId) {
-				return res.status(401).json({
-					success: false,
-					message: "Unauthorized: Authentication required.",
-				});
-			}
+			const comments = await Comment.find({ post: req.params.postId })
+				.populate("author", "name gamertag avatar")
+				.sort({ createdAt: 1 });
 
-			const { postId, content, parentCommentId } = req.body;
-
-			if (!postId || !content) {
-				return res.status(400).json({
-					success: false,
-					message: "postId and content are required.",
-				});
-			}
-
-			const comment = await CommentService.createComment(
-				postId,
-				authorId,
-				content,
-				parentCommentId,
-			);
-
-			return res.status(201).json({ success: true, data: comment });
-		} catch (error: any) {
-			return res.status(400).json({ success: false, message: error.message });
+			return res.json(comments);
+		} catch (err: any) {
+			return res.status(500).json({ message: err.message });
 		}
 	}
 
-	static async getByPost(req: Request, res: Response) {
+	static async create(req: any, res: any) {
 		try {
-			const { postId } = req.params;
-			const page = parseInt(req.query.page as string) || 1;
-			const limit = parseInt(req.query.limit as string) || 10;
+			const { postId, text, parentId } = req.body;
 
-			const comments = await CommentService.getPostComments(
-				postId as string,
-				page,
-				limit,
-			);
+			if (!text?.trim()) {
+				return res.status(400).json({ message: "Comment text is required." });
+			}
 
-			return res.status(200).json({
-				success: true,
-				count: comments.length,
-				data: comments,
+			const post = await Post.findById(postId);
+			if (!post) {
+				return res.status(404).json({ message: "Post not found." });
+			}
+
+			const comment = await Comment.create({
+				post: postId,
+				author: req.user._id,
+				text: text.trim(),
+				parent: parentId || null,
 			});
-		} catch (error: any) {
-			return res.status(500).json({ success: false, message: error.message });
+
+			await comment.populate("author", "name gamertag avatar");
+			return res.status(201).json(comment);
+		} catch (err: any) {
+			return res.status(500).json({ message: err.message });
 		}
 	}
 
-	static async getReplies(req: Request, res: Response) {
+	static async update(req: any, res: any) {
 		try {
-			const { commentId } = req.params;
-			const page = parseInt(req.query.page as string) || 1;
-			const limit = parseInt(req.query.limit as string) || 10;
+			const comment = await Comment.findById(req.params.id);
+			if (!comment) {
+				return res.status(404).json({ message: "Comment not found." });
+			}
+			if (comment.author.toString() !== req.user._id) {
+				return res.status(403).json({ message: "Not your comment." });
+			}
 
-			const replies = await CommentService.getCommentReplies(
-				commentId as string,
-				page,
-				limit,
-			);
-
-			return res.status(200).json({
-				success: true,
-				count: replies.length,
-				data: replies,
-			});
-		} catch (error: any) {
-			return res.status(500).json({ success: false, message: error.message });
+			comment.text = req.body.text.trim();
+			await comment.save();
+			await comment.populate("author", "name gamertag avatar");
+			return res.json(comment);
+		} catch (err: any) {
+			return res.status(500).json({ message: err.message });
 		}
 	}
 
-	static async delete(req: Request, res: Response) {
+	static async remove(req: any, res: any) {
 		try {
-			const userId = req.user?._id;
-
-			if (!userId) {
-				return res.status(401).json({
-					success: false,
-					message: "Unauthorized: Authentication required.",
-				});
+			const commentId = req.params.id;
+			const comment = await Comment.findById(commentId);
+			if (!comment) {
+				return res.status(404).json({ message: "Comment not found." });
+			}
+			if (comment.author.toString() !== req.user._id) {
+				return res.status(403).json({ message: "Not your comment." });
 			}
 
-			const { id } = req.params;
-			const success: boolean = await CommentService.deleteComment(
-				id as string,
-				userId,
-			);
-
-			if (!success) {
-				return res.status(403).json({
-					success: false,
-					message: "Comment not found or you are not authorized to delete it.",
-				});
+			if (!comment.parent) {
+				// top-level: delete all replies first, then itself
+				await Comment.deleteMany({ parent: commentId });
 			}
+			await Comment.findByIdAndDelete(commentId);
 
-			return res
-				.status(200)
-				.json({ success: true, message: "Comment deleted successfully." });
-		} catch (error: any) {
-			return res.status(500).json({ success: false, message: error.message });
+			return res.json({ message: "Comment deleted." });
+		} catch (err: any) {
+			return res.status(500).json({ message: err.message });
 		}
 	}
 }

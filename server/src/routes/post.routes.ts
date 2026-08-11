@@ -1,17 +1,17 @@
 import { Router } from "express";
 import { PostController } from "../controllers/post.controller.js";
-import { authenticate } from "../middlewares/auth.middleware.js"; // Import your auth middleware
+import { CommentController } from "../controllers/comment.controller.js";
+import { auth, optionalAuth } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-// Public routes
-router.get("/myposts", authenticate, PostController.getMyPosts);
-router.get("/", PostController.getAll);
-router.get("/:id", PostController.getById);
+router.get("/", optionalAuth, PostController.getFeed);
+router.get("/user/:userId", optionalAuth, PostController.getByUser);
+router.post("/", auth, PostController.create);
+router.put("/:id", auth, PostController.update);
+router.delete("/:id", auth, PostController.remove);
 
-// Protected routes
-router.post("/", authenticate, PostController.create);
-router.patch("/:id", authenticate, PostController.update);
-router.delete("/:id", authenticate, PostController.delete);
+// comments nested under posts
+router.get("/:postId/comments", CommentController.getByPost);
 
 export default router;

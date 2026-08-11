@@ -1,218 +1,73 @@
-import { Request, Response } from "express";
-import { UserService } from "../services/user.service.js";
+import User from "../models/User.js";
+import { Post } from "../models/Post.js";
 
 export class UserController {
-	// GET PROFILE INFO
-	static async getProfile(req: Request, res: Response) {
+	// public profile — name, gamertag, avatar, friends
+	static async getById(req: any, res: any) {
 		try {
-			const userId = req.user?._id;
+			const user = await User.findById(req.params.id)
+				.select("name gamertag avatar friends createdAt")
+				.populate("friends", "name gamertag avatar");
 
-			if (!userId) {
-				return res.status(401).json({
-					success: false,
-					message: "Unauthorized: Authentication required.",
-				});
+			if (!user) {
+				return res.status(404).json({ message: "User not found." });
 			}
 
-			const profileData = await UserService.getProfile(userId);
+			const postCount = await Post.countDocuments({ author: user._id });
 
-			return res.status(200).json({
-				success: true,
-				message: "Profile Fetched successfully",
-				data: profileData,
+			return res.json({
+				user,
+				postCount,
 			});
-		} catch (error: any) {
-			return res.status(500).json({
-				success: false,
-				message: error.message,
-			});
+		} catch (err: any) {
+			return res.status(500).json({ message: err.message });
 		}
 	}
 
-	// UPDATE PROFILE
-	static async updateProfile(req: Request, res: Response) {
+	// update own profile
+	static async update(req: any, res: any) {
 		try {
-			const { name, gamertag, bio, avatarUrl } = req.body;
-			// Empty body - nothign to update
-			if (!name && !gamertag && !bio && !avatarUrl) {
-				return res.status(400).json({
-					success: false,
-					message: "Nothing to update!",
-				});
+			const userId = req.user._id;
+			if (req.params.id !== userId) {
+				return res.status(403).json({ message: "You can only edit your own profile." });
 			}
 
-			const authenticatedUserId = req.user?._id;
-			const targetUserId = req.params.id;
-
-			// Auth check
-			if (!authenticatedUserId) {
-				return res.status(401).json({
-					success: false,
-					message: "Unauthorized: Authentication required.",
-				});
+			const { name, gamertag, avatar } = req.body;
+			const user = await User.findById(userId);
+			if (!user) {
+				return res.status(404).json({ message: "User not found." });
 			}
 
-			// Authorization check: Users can only edit their own profile
-			if (authenticatedUserId !== targetUserId) {
-				return res.status(403).json({
-					success: false,
-					message: "Forbidden: You can only update your own profile.",
-				});
-			}
+			if (name) user.name = name;
+			if (gamertag) user.gamertag = gamertag;
+			if (avatar !== undefined) user.avatar = avatar;
 
-			// Extract allowed fields from body
+			await user.save();
 
-			const updatedUser = await UserService.updateProfile(targetUserId, {
-				name,
-				gamertag,
-				bio,
-				avatarUrl,
+			return res.json({
+				_id: user._id,
+				name: user.name,
+				gamertag: user.gamertag,
+				email: user.email,
+				avatar: user.avatar,
 			});
-
-			if (!updatedUser) {
-				return res.status(404).json({
-					success: false,
-					message: "User not found.",
-				});
-			}
-
-			return res.status(200).json({
-				success: true,
-				message: "Profile updated successfully",
-				data: updatedUser,
-			});
-		} catch (error: any) {
-			return res.status(400).json({
-				success: false,
-				message: error.message || "Failed to update profile.",
-			});
+		} catch (err: any) {
+			return res.status(500).json({ message: err.message });
 		}
 	}
 
-	// DELETE ACCOUNT / PROFILE
-	static async deleteAccount(req: Request, res: Response) {
+	// get current logged-in user (for navbar)
+	static async me(req: any, res: any) {
 		try {
-			const targetUserId = req.params.id;
-			if (!targetUserId)
-				return res.status(400).json({
-					success: false,
-					message: "Target id is missing in the url",
-				});
-
-			const authenticatedUserId = req.user?._id; // Populated by your auth middleware
-
-			// Prevent users from deleting other accounts
-			if (authenticatedUserId !== targetUserId) {
-				return res.status(403).json({
-					success: false,
-					message: "Forbidden: You can only delete your own account.",
-				});
+			const user = await User.findById(req.user._id).select(
+				"name gamertag email avatar friends",
+			);
+			if (!user) {
+				return res.status(404).json({ message: "User not found." });
 			}
-
-			const deletedUser = await UserService.deleteUser(targetUserId);
-
-			if (!deletedUser) {
-				return res.status(404).json({
-					success: false,
-					message: "User not found.",
-				});
-			}
-
-			return res.status(200).json({
-				success: true,
-				message: "Account and associated posts deleted successfully.",
-			});
-		} catch (error: any) {
-			return res.status(500).json({
-				success: false,
-				message: error.message || "An error occurred while deleting account.",
-			});
-		}
-	}
-
-	// SEARCH FOR USERS
-	static async searchUsers(req: Request, res: Response) {
-		try {
-			const userId = req.user?._id;
-			const query = (req.query.q as string) || "";
-
-			if (!userId) {
-				return res.status(401).json({
-					success: false,
-					message: "Unauthorized: Authentication required.",
-				});
-			}
-
-			const users = await UserService.searchUsers(query, userId);
-
-			return res.status(200).json({
-				success: true,
-				count: users.length,
-				data: users,
-			});
-		} catch (error: any) {
-			return res.status(500).json({
-				success: false,
-				message: error.message,
-			});
-		}
-	}
-
-	// GET ALL USERS
-	static async getAllUsers(req: Request, res: Response) {
-		try {
-			const userId = req.user?._id;
-			const page = parseInt(req.query.page as string) || 1;
-			const limit = parseInt(req.query.limit as string) || 20;
-
-			if (!userId) {
-				return res.status(401).json({
-					success: false,
-					message: "Unauthorized: Authentication required.",
-				});
-			}
-
-			const users = await UserService.getAllUsers(userId, page, limit);
-
-			return res.status(200).json({
-				success: true,
-				count: users.length,
-				data: users,
-			});
-		} catch (error: any) {
-			return res.status(500).json({
-				success: false,
-				message: error.message,
-			});
-		}
-	}
-
-	// GET USER PROFILE
-	static async getUserById(req: Request, res: Response) {
-		try {
-			const viewerId = req.user?._id;
-			const { id } = req.params;
-
-			if (!viewerId) {
-				return res.status(401).json({
-					success: false,
-					message: "Unauthorized: Authentication required.",
-				});
-			}
-
-			const profileData = await UserService.getUserProfile(id as string);
-
-			return res.status(200).json({
-				success: true,
-				message: "Profile fetched successfully",
-				data: profileData,
-			});
-		} catch (error: any) {
-			const status = error.message === "User not found." ? 404 : 500;
-			return res.status(status).json({
-				success: false,
-				message: error.message,
-			});
+			return res.json(user);
+		} catch (err: any) {
+			return res.status(500).json({ message: err.message });
 		}
 	}
 }
