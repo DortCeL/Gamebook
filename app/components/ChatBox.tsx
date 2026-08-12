@@ -5,7 +5,7 @@ import { useAuth } from "~/context/AuthContext";
 import type { ChatMessage, User } from "../../types";
 import { timeAgo } from "~/utils/timeAgo";
 
-// reusable chat panel — parent passes which friend to talk to
+// reusable chat panel... parent passes which friend to talk to
 export default function ChatBox({ friendId }: { friendId: string }) {
 	const { user } = useAuth();
 	const [friend, setFriend] = useState<User | null>(null);

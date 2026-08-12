@@ -27,7 +27,9 @@ export default function Navbar() {
                 <div className="flex items-center gap-3 text-sm">
                     {user ? (
                         <>
-                            Logged in as
+                            <span className="hidden md:inline-block">
+                                Logged in as
+                            </span>
                             <Link
                                 to={`/profile/${user._id}`}
                                 className="text-green-300 hover:text-green-500"
