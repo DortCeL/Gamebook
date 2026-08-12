@@ -1,188 +1,170 @@
-# 🎮 Gamebook — The Ultimate Social Hub for Gamers
+# Gamebook
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![React Router](https://img.shields.io/badge/React_Router-CA4245?style=flat&logo=react-router&logoColor=white)](https://reactrouter.com/)
-[![Express.js](https://img.shields.io/badge/Express.js-000000?style=flat&logo=express&logoColor=white)](https://expressjs.com/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+A social media web app for gamers. Think Facebook, but built around profiles, posts, friend requests, and real-time chat. The kind of place where you’d post about a match, find friends, and message them without jumping to Discord.
 
-**Gamebook** is a modern, full-stack social platform crafted specifically for gamers. Whether you want to showcase your highlight clips, share stunning game photography, publish detailed game reviews, discover common gaming libraries, or find squadmates for your next session : Gamebook brings your entire gaming life into one unified space.
+This is a full-stack TypeScript project: React Router on the frontend, Express + MongoDB on the backend, and Socket.io for live messaging.
 
----
+Checkout the [Live Demo](https://www.gamebook-alif.vercel.app)
 
-## 💡 The Problem & Solution
+## What it does
 
-### The Problem
+- **Auth:** Register / login with JWT. Passwords hashed with bcrypt.
+- **Feed:** Paginated posts with public or friends-only visibility. Logged-out users only see public posts.
+- **Comments:** Nested comments (one level of replies). Edit and delete with ownership checks; deleting a parent comment also removes its replies.
+- **Friend requests:** Send, view incoming/outgoing, accept. Accepting adds both users to each other’s friends list.
+- **Profiles:** View a user’s info, their posts, and their friends. Friend status buttons update based on whether you’re already friends or have a pending request.
+- **Real-time chat:** Open a chat with a friend. History loads over REST; new messages go through Socket.io and land in both clients immediately.
 
-Gamers today are scattered across fragmented platforms:
+## Tech stack
 
-- Captures and screenshots end up buried in hardware drives or lost on general-purpose social networks.
-- Finding reliable squadmates who share similar gaming libraries, skill levels, and active hours is tedious.
-- Game reviews on major storefronts often lack social context, personal community engagement, and direct chat integration.
+| Layer | Tools |
+| --- | --- |
+| Frontend | React 19, React Router 8, TypeScript, Tailwind CSS, Axios, Socket.io client |
+| Backend | Node.js, Express 5, TypeScript, Mongoose, JWT, bcrypt, Socket.io |
+| Database | MongoDB |
 
-### The Solution: Gamebook
-
-Gamebook bridges these gaps by providing an all-in-one social sanctuary designed exclusively for gamers:
-
-- **Dedicated Media Showcase:** Share and showcase high-resolution screenshots, clips, and gaming moments.
-- **Mutual Games Matching:** Instantly discover which titles you and your friends (or potential teammates) both own, making squad assembly effortless.
-- **In-Depth Reviews & Discussions:** Publish reviews, rate titles, start discussions, and comment on friend activities.
-- **Real-time Connectivity:** Make friends, chat directly, and coordinate gaming sessions seamlessly.
-
----
-
-## ✨ Key Features
-
-- **📸 Screenshot & Media Feed:** Share in-game moments, filter by title, and interact with posts via upvotes & comments.
-- **⭐ Game Reviews & Ratings:** Write custom reviews for games, explore community ratings, and give feedback on others' experiences.
-- **🤝 Mutual Games & Friend Discovery:** Automated matching engine that compares library overlap between profiles to help you find co-op partners.
-- **💬 Real-Time Messaging:** Connect with friends via direct chat to coordinate lobbies and banter.
-- **👤 Gamer Profiles:** Showcase your overall collection, favorite titles, active games, and media showcase in one central hub.
-
----
-
-## 🛠 Tech Stack
-
-### **Frontend** (Root Directory)
-
-- **Framework:** [React Router](https://reactrouter.com/) (Single-Page Application / Server-Side Navigation)
-- **Language:** TypeScript
-- **State & Styling:** Modern Component Architecture & Responsive CSS Framework
-
-### **Backend** (`/server` Directory)
-
-- **Runtime:** Node.js
-- **Framework:** Express.js
-- **Language:** TypeScript
-- **Database:** MongoDB (with Mongoose ODM)
-- **Authentication:** JWT (JSON Web Tokens) & Secure Password Hashing
-
----
-
-## 📁 Repository Structure
+## Project structure
 
 ```text
 Gamebook/
-├── public/                 # Static assets
-├── src/                    # Frontend React Router application
-│   ├── components/         # Reusable UI components
-│   ├── pages/              # Route views & pages
-│   ├── routes/             # React Router navigation setup
-│   ├── services/           # API interaction modules
-│   └── types/              # Shared TypeScript definitions
-├── server/                 # Express Node.js TypeScript Backend
-│   ├── src/
-│   │   ├── controllers/    # Request handlers & logic
-│   │   ├── models/         # MongoDB schemas
-│   │   ├── routes/         # Express API endpoints
-│   │   ├── middleware/     # Auth & validation middleware
-│   │   └── config/         # Database and server config
-│   ├── package.json
-│   └── tsconfig.json
-├── package.json            # Root configuration
+├── app/                    # Frontend (React Router)
+│   ├── api/                # Axios client + Socket.io helper
+│   ├── components/         # UI (feed, chat, profile, navbar…)
+│   ├── context/            # AuthContext
+│   ├── routes/             # Pages + guest / public / protected layouts
+│   └── utils/
+├── server/                 # Backend
+│   └── src/
+│       ├── controllers/
+│       ├── models/
+│       ├── routes/
+│       ├── middlewares/
+│       ├── socket/         # Socket.io setup + chat events
+│       ├── config/
+│       └── server.ts       # HTTP server + Socket.io attach point
 └── README.md
 ```
 
----
+## Getting started
 
-## 🚀 Getting Started
+### Requirements
 
-### Prerequisites
+- Node.js 18+
+- MongoDB (local or Atlas)
 
-Make sure you have the following installed on your local environment:
-
-- [Node.js](https://nodejs.org/) (v18.x or higher)
-- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
-- [MongoDB](https://www.mongodb.com/) (Local instance or MongoDB Atlas Connection URI)
-
----
-
-### Installation & Setup
-
-#### 1. Clone the Repository
+### 1. Clone
 
 ```bash
 git clone https://github.com/DortCeL/gamebook.git
 cd gamebook
 ```
 
-#### 2. Backend Setup (`/server`)
+### 2. Backend
 
 ```bash
-# Navigate to the server directory
 cd server
-
-# Install dependencies
 npm install
-
-# Create environment configuration file
-cp .env.example .env
 ```
 
-Configure your server `.env` file:
+Create `server/.env`:
 
 ```env
-PORT=5000
-MONGO_URI=mongodb://localhost:27017/gamebook
-JWT_SECRET=your_super_secret_jwt_key
+PORT=4060
+MONGODB_URI=mongodb://127.0.0.1:27017/gamebook
+JWT_SECRET=your_secret_here
 CLIENT_URL=http://localhost:5173
 ```
 
-Start the backend server in development mode:
-
 ```bash
 npm run dev
 ```
 
-#### 3. Frontend Setup (Root Directory)
+Server runs on `http://localhost:4060` (Express + Socket.io on the same port).
 
-Open a new terminal tab, navigate back to the root folder, and install dependencies:
+### 3. Frontend
+
+From the repo root:
 
 ```bash
-# Return to root directory
-cd ..
-
-# Install frontend dependencies
 npm install
-
-# Create environment configuration file
-cp .env.example .env
 ```
 
-Configure your root `.env` file:
+Create a root `.env`:
 
 ```env
-VITE_API_BASE_URL=http://localhost:5000/api
+VITE_API_URL=http://localhost:4060
 ```
-
-Start the frontend development server:
 
 ```bash
 npm run dev
 ```
 
----
+Open the URL Vite prints (usually `http://localhost:5173`).
 
-## 🔌 API Overview
+## API overview
 
-| Method | Endpoint                      | Description                                |
-| :----- | :---------------------------- | :----------------------------------------- |
-| `POST` | `/api/auth/register`          | Register a new user account                |
-| `POST` | `/api/auth/login`             | Authenticate user & issue JWT              |
-| `GET`  | `/api/posts`                  | Fetch community feed posts & screenshots   |
-| `POST` | `/api/posts`                  | Create a new post or upload media          |
-| `GET`  | `/api/games/reviews`          | Retrieve game reviews                      |
-| `GET`  | `/api/users/:id/mutual-games` | Compare gaming libraries with another user |
-| `GET`  | `/api/chats`                  | Get active user chat conversations         |
+| Method | Endpoint | Notes |
+| --- | --- | --- |
+| `POST` | `/api/auth/register` | Create account |
+| `POST` | `/api/auth/login` | Returns JWT + user |
+| `GET` | `/api/users/me` | Current user (auth) |
+| `GET` | `/api/users/:id` | Public profile |
+| `PUT` | `/api/users/:id` | Update profile (auth) |
+| `GET` | `/api/posts` | Feed (paginated; respects visibility) |
+| `GET` | `/api/posts/user/:userId` | Posts by user |
+| `POST` | `/api/posts` | Create post (auth) |
+| `PUT` / `DELETE` | `/api/posts/:id` | Own posts only |
+| `GET` | `/api/posts/:postId/comments` | Comments + replies |
+| `POST` / `PUT` / `DELETE` | `/api/comments` … | Create / edit / delete |
+| `POST` | `/api/friend-requests` | Send request |
+| `GET` | `/api/friend-requests/incoming` | Incoming |
+| `GET` | `/api/friend-requests/outgoing` | Outgoing |
+| `PUT` | `/api/friend-requests/:id/accept` | Accept |
+| `GET` | `/api/messages/:friendId` | Chat history with a friend |
 
----
+Health check: `GET /api/health`
 
-## 🤝 Contributing
+### Socket events (chat)
 
-Contributions make the open-source community an incredible place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+| Event | Direction | Purpose |
+| --- | --- | --- |
+| `join_chat` | Client → Server | Join the shared room for you + a friend |
+| `send_message` | Client → Server | Persist message, then broadcast |
+| `receive_message` | Server → Clients | New message payload for everyone in the room |
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+JWT is verified on the Socket.io handshake (`auth.token`). Chat rooms are named by sorting both user IDs so either side joins the same room.
+
+## Challenges I ran into (and how I fixed them)
+
+These are the ones that actually slowed me down while building this.
+
+### 1. Cascade deletes don’t exist in MongoDB
+
+MongoDB isn’t relational, so deleting a post doesn’t automatically wipe its comments. I looked at a few options (document middleware, query middleware, a service-layer helper) and went with explicit deletes in the controllers: delete related comments first, then the post. Same idea for top-level comments: wipe replies, then delete the parent. It’s not fancy, but it’s clear and doesn’t depend on calling the “right” Mongoose delete method.
+
+### 2. Express route order bites hard
+
+I registered something like `GET /:id` before `GET /myposts`. Express treated `"myposts"` as an id and the static route never ran. Rule I follow now: **static paths first, dynamic params last**.
+
+### 3. Signup didn’t return a token
+
+Register created the user but didn’t log them in. After signup the UI expected an authenticated session, so the app felt broken. Fix on the client: after a successful register, immediately call login with the same credentials. Simple, and I didn’t have to change the auth contract mid-project.
+
+### 4. React state isn’t updated the line after `setState`
+
+On the profile page I set incoming friend requests, then immediately tried to `.find()` on that state to decide which button to show. State updates are async / batched, so I was reading the *previous* render’s value. Fixed by deriving the status from the response data itself (or from the updated state on the next render), not from the variable I had just called `setState` on.
+
+### 5. Socket.io needs the raw HTTP server
+
+Attaching Socket.io to the Express `app` alone isn’t enough. You need `http.createServer(app)`, then pass that server into Socket.io. Once I understood that, chat connect/auth/rooms lined up with the Express API on one port.
+
+### 6. Deploy build couldn’t find `socket.io`
+
+On Render, TypeScript failed with “Cannot find module 'socket.io'”. The package lived in the wrong place relative to how the host builds the app (root vs `server/`). Installing Socket.io where the server actually builds from fixed the missing types / module resolution.
+
+## Auth & routing notes
+
+- Guest routes (`/login`, `/signup`): redirects away if already logged in.
+- Public routes: home feed and profiles work for everyone; some actions redirect to login.
+- Protected routes: chat requires a valid token.
+- Token is stored client-side and sent on API requests; the same token is passed into the Socket.io handshake for chat.

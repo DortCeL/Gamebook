@@ -1,11 +1,11 @@
 import jwt from "jsonwebtoken";
 import type { Server as HttpServer } from "http";
-import { Server, type Socket } from "socket.io";
+import { Server as SocketServer, type Socket } from "socket.io";
 import { Message } from "../models/Message.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
 
-let io: Server | null = null;
+let io: SocketServer | null = null;
 
 // room name for two users: sort ids alphabetically
 function chatRoom(userA: string, userB: string) {
@@ -14,7 +14,7 @@ function chatRoom(userA: string, userB: string) {
 }
 
 export function initSocket(server: HttpServer) {
-	io = new Server(server, {
+	io = new SocketServer(server, {
 		cors: {
 			origin: ["http://localhost:5173", process.env.CLIENT_URL as string],
 			credentials: true,
@@ -69,9 +69,12 @@ export function initSocket(server: HttpServer) {
 					text: text.trim(),
 				});
 
+				// saving message to DB before emitting because that way we get proper _id from db.
 				await message.populate("sender", "name gamertag avatar");
 
 				const room = chatRoom(userId, receiverId);
+
+				// my ChatBox.tsx component expects this format
 				const payload = {
 					_id: message._id,
 					sender: message.sender,
