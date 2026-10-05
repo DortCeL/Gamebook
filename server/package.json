@@ -6,7 +6,9 @@
 	"scripts": {
 		"dev": "npx tsx watch ./src/server.ts",
 		"build": "tsc",
-		"start": "node dist/server.js"
+		"start": "node dist/server.js",
+		"seed": "npx tsx ./src/seed.ts",
+		"seed:prod": "node dist/seed.js"
 	},
 	"keywords": [],
 	"author": "",

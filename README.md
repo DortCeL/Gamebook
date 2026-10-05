@@ -41,25 +41,65 @@ Gamebook/
 │       ├── middlewares/
 │       ├── socket/         # Socket.io setup + chat events
 │       ├── config/
+│       ├── seed.ts         # Demo data
 │       └── server.ts       # HTTP server + Socket.io attach point
+├── Dockerfile              # Frontend image
+├── docker-compose.yml      # MongoDB + API + frontend
 └── README.md
 ```
 
 ## Getting started
-
-### Requirements
-
-- Node.js 18+
-- MongoDB (local or Atlas)
-
-### 1. Clone
 
 ```bash
 git clone https://github.com/DortCeL/gamebook.git
 cd gamebook
 ```
 
-### 2. Backend
+### Option A: Docker (recommended)
+
+The whole stack runs in containers: MongoDB, the Express API, and the React Router frontend. You only need [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
+
+```bash
+docker compose up -d --build                     # build and start everything
+docker compose exec server npm run seed:prod     # fill the database with demo data
+```
+
+Then open:
+
+| Service | URL |
+| --- | --- |
+| Frontend | http://localhost:8080 |
+| API + Socket.io | http://localhost:5060 |
+
+MongoDB stays inside the Docker network and keeps its data in a volume, so it survives restarts.
+
+Useful commands:
+
+```bash
+docker compose logs -f server    # follow backend logs
+docker compose down              # stop (data is kept)
+docker compose down -v           # stop and wipe the database
+```
+
+After changing code, run `docker compose up -d --build` again to rebuild.
+
+### Demo accounts
+
+The seed creates 6 users, 14 posts (enough for the feed to load a second page), comments with replies, chat history, and a couple of pending friend requests. Every account uses the password `password123`.
+
+| Email | Good for testing |
+| --- | --- |
+| `alif@gamebook.dev` | Main account: 3 friends, chat history, one incoming and one outgoing friend request |
+| `nadia@gamebook.dev` | Friend of alif, has the longest chat with him |
+| `mehrab@gamebook.dev` | No friends yet, only sees public posts |
+
+Running the seed again wipes the database and starts fresh.
+
+### Option B: Run locally without Docker
+
+You'll need Node.js 18+ and MongoDB (local or Atlas).
+
+#### 1. Backend
 
 ```bash
 cd server
@@ -76,12 +116,13 @@ CLIENT_URL=http://localhost:5173
 ```
 
 ```bash
+npm run seed   # optional: demo data
 npm run dev
 ```
 
 Server runs on `http://localhost:4060` (Express + Socket.io on the same port).
 
-### 3. Frontend
+#### 2. Frontend
 
 From the repo root:
 

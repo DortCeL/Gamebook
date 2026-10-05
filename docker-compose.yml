@@ -1,0 +1,41 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  server:
+    build: ./server
+    restart: unless-stopped
+    env_file:
+      - path: ./server/.env
+        required: false
+    environment:
+      PORT: 4060
+      MONGODB_URI: mongodb://mongo:27017/gamebook
+      CLIENT_URL: http://localhost:8080
+    ports:
+      - "5060:4060"
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      args:
+        VITE_API_URL: http://localhost:5060
+    restart: unless-stopped
+    ports:
+      - "8080:3000"
+    depends_on:
+      - server
+
+volumes:
+  mongo-data:
